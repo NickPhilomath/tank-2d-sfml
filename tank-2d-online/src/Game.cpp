@@ -1,22 +1,25 @@
 #include "Game.hpp"
 
 Game::Game() {
-    playerTank = new Tank(Tank::PLAYER);
+    playerTank = new Tank(G_PLAYER);
     playerTank->setPosition(sf::Vector2f(300, 300));
     {
-        Tank* tank = new Tank(Tank::ENAMY);
+        Tank* tank = new Tank(G_ENAMY);
         tank->setPosition(sf::Vector2f(50, 50));
         tanks.push_back(tank);
     }
     {
-        Tank* tank = new Tank(Tank::ALLIE);
+        Tank* tank = new Tank(Group::G_ALLIE);
         tank->setPosition(sf::Vector2f(250, 150));
         tanks.push_back(tank);
     }
 }
 
 Game::~Game() {
-    
+    delete playerTank;
+    for (auto tank : tanks) {
+        delete tank;
+    }
 }
 
 void Game::run() {
@@ -34,25 +37,24 @@ void Game::run() {
     mapBorder.setFillColor(sf::Color::Transparent);
     mapBorder.setOutlineColor(sf::Color::Blue);
 
+    Camera camera{VIEW_WIDTH, VIEW_HEIGHT};
+    camera.viewTarget = playerTank;
+    //sf::View view(sf::FloatRect(playerTank->getPosition().x - VIEW_WIDTH / 2, playerTank->getPosition().y - VIEW_HEIGHT / 2, VIEW_WIDTH, VIEW_HEIGHT));
+
     while (window.isOpen()) {
         // get events 
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
-
-            for (auto tank : tanks) {
-                //tank->onEvent(event);
-            }
         }
-        // update
-        //for (auto tank : tanks) {
-        //    tank->update(clock.restart().asSeconds());
-        //}
-        playerTank->update(clock.restart().asSeconds());
 
-        sf::View view(sf::FloatRect(playerTank->getPosition().x - VIEW_WIDTH / 2, playerTank->getPosition().y - VIEW_HEIGHT / 2, VIEW_WIDTH, VIEW_HEIGHT));
-        window.setView(view);
+        // update
+        float DT = clock.restart().asSeconds();
+        playerTank->update(DT);
+        
+        camera.update(DT);
+        window.setView(camera.cameraView);
 
         // render
         window.clear();
@@ -66,5 +68,5 @@ void Game::run() {
 }
 
 void Game::createWindow() {
-	window.create(sf::VideoMode(APP_WIDTH, APP_HEIGHT), APP_TITLE, sf::Style::Close);
+	window.create(sf::VideoMode(VIEW_WIDTH, VIEW_HEIGHT), APP_TITLE, sf::Style::Close);
 }

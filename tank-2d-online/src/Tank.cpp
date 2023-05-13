@@ -1,7 +1,22 @@
 #include "Tank.hpp"
 
-Tank::Tank(uint8_t group) :
-    acceleration{ 10.f }, maxSpeed{ 100.f }, rotationSpeed{ 40.f }, group{ group } {
+#ifdef _DEBUG
+#include <iostream>
+#endif // _DEBUG
+
+
+Tank::Tank(Group group) :
+    forward_maxSpeed{ 100.f },
+    backward_maxSpeed{ 70.f },
+    forward_acceleration{ 200.f },
+    backward_acceleration{ 150.f },
+    break_acceleration{ 500.f },
+    rotationSpeed{ 40.f },
+    group{ group }
+{
+    acceleration_state = A_NO_POWER;
+    rotation = 0.f;
+    speed = 0.f;
     // creating shape 
     body.setPointCount(4);
     body.setPoint(0, sf::Vector2f(30.f, 20.f));
@@ -17,12 +32,12 @@ Tank::Tank(uint8_t group) :
     gun.setSize(sf::Vector2f(50, 4));
     gun.setOrigin(sf::Vector2f(-13, 2));
 
-    if (group == Tank::ALLIE) {
+    if (group == G_ALLIE) {
         body.setOutlineColor(sf::Color::Green);
         turrent.setOutlineColor(sf::Color::Green);
         gun.setFillColor(sf::Color::Green);
     }
-    else if (group == Tank::ENAMY) {
+    else if (group == G_ENAMY) {
         body.setOutlineColor(sf::Color::Red);
         turrent.setOutlineColor(sf::Color::Red);
         gun.setFillColor(sf::Color::Red);
@@ -43,14 +58,48 @@ void Tank::update(float deltaTime) {
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         move = 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        rotate = 1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         move = -1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        rotate = 1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         rotate = -1;
 
-    setPosition(sf::Vector2f(position.x + rotate, position.y + move));
+    if (move == 1) {
+        acceleration_state = speed < 0 ? A_BREAKE : A_FORWARD;
+    }
+    if (move == -1) {
+        acceleration_state = speed > 0 ? A_BREAKE : A_BACKWARD;
+    }
+    if (move == 0) {
+        acceleration_state = A_NO_POWER;
+    }
+
+    switch (acceleration_state)
+    {
+    case A_NO_POWER:
+        if (speed > 0) speed -= deltaTime * GROUND_FRICTION_ACCELERATION;
+        if (speed < 0) speed += deltaTime * GROUND_FRICTION_ACCELERATION;
+        break;
+    case A_FORWARD:
+        speed += deltaTime * forward_acceleration;
+        break;
+    case A_BACKWARD:
+        speed -= deltaTime * backward_acceleration;
+        break;
+    case A_BREAKE:
+        speed += deltaTime * break_acceleration * move;
+        break;
+    default:
+        break;
+    }
+
+    sf::Vector2f velocity;
+    velocity.x = speed * cos(rotation * DEG2RAD);
+    velocity.y = speed * sin(rotation * DEG2RAD);
+    setPosition(sf::Vector2f(position.x + velocity.x * deltaTime, position.y + velocity.y * deltaTime));
+
+    if (rotate != 0) setRotation(rotation + rotate * rotationSpeed * deltaTime);
 }
 
 void Tank::render(sf::RenderWindow& target) {
@@ -67,6 +116,11 @@ void Tank::setPosition(sf::Vector2f pos) {
     body.setPosition(pos);
     turrent.setPosition(pos);
     gun.setPosition(pos);
+}
+
+void Tank::setRotation(float r) {
+    rotation = r;
+    body.setRotation(r);
 }
 
 sf::Vector2f Tank::getPosition() const {

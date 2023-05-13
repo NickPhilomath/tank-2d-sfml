@@ -4,6 +4,7 @@
 
 #include "constants.hpp"
 #include "Tank.hpp"
+#include "Camera.hpp"
 
 class Game {
 public:
