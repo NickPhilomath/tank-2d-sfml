@@ -16,5 +16,6 @@ private:
 	void createWindow();
 
 	sf::RenderWindow window; 
+	Tank* playerTank;
 	std::vector<Tank*> tanks;
 };

@@ -1,9 +1,16 @@
 #include "Game.hpp"
 
 Game::Game() {
+    playerTank = new Tank(Tank::PLAYER);
+    playerTank->setPosition(sf::Vector2f(300, 300));
     {
-        Tank* tank = new Tank();
+        Tank* tank = new Tank(Tank::ENAMY);
         tank->setPosition(sf::Vector2f(50, 50));
+        tanks.push_back(tank);
+    }
+    {
+        Tank* tank = new Tank(Tank::ALLIE);
+        tank->setPosition(sf::Vector2f(250, 150));
         tanks.push_back(tank);
     }
 }
@@ -25,6 +32,7 @@ void Game::run() {
     mapBorder.setPoint(3, sf::Vector2f(0, 1000));
     mapBorder.setOutlineThickness(2);
     mapBorder.setFillColor(sf::Color::Transparent);
+    mapBorder.setOutlineColor(sf::Color::Blue);
 
     while (window.isOpen()) {
         // get events 
@@ -38,14 +46,17 @@ void Game::run() {
             }
         }
         // update
-        for (auto tank : tanks) {
-            tank->update(clock.restart().asSeconds());
-        }
-        sf::View view(sf::FloatRect(0, 0, 800.f, 600.f));
+        //for (auto tank : tanks) {
+        //    tank->update(clock.restart().asSeconds());
+        //}
+        playerTank->update(clock.restart().asSeconds());
+
+        sf::View view(sf::FloatRect(playerTank->getPosition().x - VIEW_WIDTH / 2, playerTank->getPosition().y - VIEW_HEIGHT / 2, VIEW_WIDTH, VIEW_HEIGHT));
         window.setView(view);
 
         // render
         window.clear();
+        playerTank->render(window);
         for (auto tank : tanks) {
             tank->render(window);
         }
