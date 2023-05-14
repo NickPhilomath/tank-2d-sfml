@@ -5,17 +5,11 @@
 #endif // _DEBUG
 
 
-Tank::Tank(Group group) :
-    forward_maxSpeed{ 100.f },
-    backward_maxSpeed{ 70.f },
-    forward_acceleration{ 200.f },
-    backward_acceleration{ 150.f },
-    break_acceleration{ 500.f },
-    rotationSpeed{ 40.f },
+Tank::Tank(Group group, TankProps props) :
+    props{ props },
     group{ group }
 {
-    acceleration_state = A_NO_POWER;
-    rotation = 0.f;
+    acceleration_stage = A_NO_POWER;
     speed = 0.f;
     // creating shape 
     body.setPointCount(4);
@@ -53,7 +47,7 @@ Tank::Tank(Group group) :
 Tank::~Tank() {
 }
 
-void Tank::update(float deltaTime) {
+void Tank::update(float deltaTime, sf::Vector2i mousePos) {
     int move = 0, rotate = 0;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
@@ -65,41 +59,58 @@ void Tank::update(float deltaTime) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         rotate = -1;
 
+    // if player suddenly changes movement tank uses break first
     if (move == 1) {
-        acceleration_state = speed < 0 ? A_BREAKE : A_FORWARD;
+        acceleration_stage = speed < 0 ? A_BREAKE : A_FORWARD;
     }
     if (move == -1) {
-        acceleration_state = speed > 0 ? A_BREAKE : A_BACKWARD;
+        acceleration_stage = speed > 0 ? A_BREAKE : A_BACKWARD;
     }
     if (move == 0) {
-        acceleration_state = A_NO_POWER;
+        acceleration_stage = A_NO_POWER;
     }
 
-    switch (acceleration_state)
+    switch (acceleration_stage)
     {
     case A_NO_POWER:
         if (speed > 0) speed -= deltaTime * GROUND_FRICTION_ACCELERATION;
         if (speed < 0) speed += deltaTime * GROUND_FRICTION_ACCELERATION;
         break;
     case A_FORWARD:
-        speed += deltaTime * forward_acceleration;
+        speed += deltaTime * props.forward_acceleration;
         break;
     case A_BACKWARD:
-        speed -= deltaTime * backward_acceleration;
+        speed -= deltaTime * props.backward_acceleration;
         break;
     case A_BREAKE:
-        speed += deltaTime * break_acceleration * move;
+        speed += deltaTime * props.break_acceleration * move;
         break;
     default:
         break;
     }
 
-    sf::Vector2f velocity;
-    velocity.x = speed * cos(rotation * DEG2RAD);
-    velocity.y = speed * sin(rotation * DEG2RAD);
-    setPosition(sf::Vector2f(position.x + velocity.x * deltaTime, position.y + velocity.y * deltaTime));
+    if (speed > props.forward_maxSpeed) speed = props.forward_maxSpeed;
+    if (speed < props.backward_maxSpeed) speed = props.backward_maxSpeed;
 
-    if (rotate != 0) setRotation(rotation + rotate * rotationSpeed * deltaTime);
+    sf::Vector2f velocity;
+    velocity.x = speed * cos(body.getRotation() * DEG2RAD);
+    velocity.y = speed * sin(body.getRotation() * DEG2RAD);
+    setPosition(sf::Vector2f(getPosition().x + velocity.x * deltaTime, getPosition().y + velocity.y * deltaTime));
+
+    int rotateSign = speed >= 0 ? 1 : -1; // rotate reverse if tank is moving backward
+    float deltaRotate = rotate * rotateSign * props.rotationSpeed * deltaTime;
+    if (rotate != 0) {
+        setRotation(body.getRotation() + deltaRotate);
+        setTurrentRotation(gun.getRotation() + deltaRotate);
+    }
+
+    // mouse movement 
+    float gunAngle = gun.getRotation();
+    float angle = atan2(VIEW_HEIGHT / 2.f - mousePos.y, VIEW_WIDTH / 2.f - mousePos.x) * RAD2DEG + 180.f;
+    int gunRotateSign = (angle > gunAngle) == abs(gunAngle - angle) > 180 ? -1 : 1;
+    //std::cout << gun.getRotation() << std::endl;
+    gun.setRotation(gunAngle + gunRotateSign * props.turrentRotationSpeed * deltaTime);
+
 }
 
 void Tank::render(sf::RenderWindow& target) {
@@ -112,17 +123,20 @@ void Tank::render(sf::RenderWindow& target) {
 //}
 
 void Tank::setPosition(sf::Vector2f pos) {
-    position = pos;
     body.setPosition(pos);
     turrent.setPosition(pos);
     gun.setPosition(pos);
 }
 
 void Tank::setRotation(float r) {
-    rotation = r;
     body.setRotation(r);
 }
 
+void Tank::setTurrentRotation(float r)
+{
+    gun.setRotation(r);
+}
+
 sf::Vector2f Tank::getPosition() const {
-    return position;
+    return body.getPosition();
 }
