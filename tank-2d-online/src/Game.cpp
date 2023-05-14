@@ -2,12 +2,18 @@
 
 #ifdef _DEBUG
 #include <iostream>
+#include <chrono>
 #endif // _DEBUG
 
+void fun() {
+    std::cout << "independent function" << std::endl;
+}
 
-Game::Game() {
+
+Game::Game() :
+    client{"127.0.0.1", 1234} 
+{
     TankProps globalProps{};
-
     playerTank = new Tank(G_PLAYER, globalProps);
     playerTank->setPosition(sf::Vector2f(300, 300));
     {
@@ -23,6 +29,8 @@ Game::Game() {
 }
 
 Game::~Game() {
+    client.connected = false;
+
     delete playerTank;
     for (auto tank : tanks) {
         delete tank;
@@ -33,7 +41,32 @@ void Game::createWindow() {
     window.create(sf::VideoMode(VIEW_WIDTH, VIEW_HEIGHT), APP_TITLE, sf::Style::Close);
 }
 
+void Game::networkFunction() {
+
+    client.connect();
+    while (client.connected) {
+        auto t_start = std::chrono::high_resolution_clock::now();
+
+        TransferData data;
+        data.speed = playerTank->speed;
+        data.position = playerTank->getPosition();
+        data.rotation = playerTank->getRotation();
+        data.turrentRotation = playerTank->getTurrentRotation();
+
+        client.send(data);
+        client.recieve();
+
+        auto t_end = std::chrono::high_resolution_clock::now();
+        double elapsed_time = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+        std::cout << elapsed_time << std::endl;
+    }
+    client.disconnect();
+}
+
 void Game::run() {
+    std::thread netThread(&Game::networkFunction, this);
+    netThread.detach();
+
 	createWindow();
 
     sf::Clock clock;

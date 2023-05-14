@@ -30,13 +30,15 @@ public:
 	void setRotation(float r);
 	void setTurrentRotation(float r);
 	sf::Vector2f getPosition() const;
+	float getRotation() const;
+	float getTurrentRotation() const;
 
+	float speed;
 
 private:
 	const TankProps props;
 	const Group group;
 	
-	float speed;
 	AccelerationStage acceleration_stage;
 
 	sf::ConvexShape body;

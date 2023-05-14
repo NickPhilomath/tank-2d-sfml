@@ -140,3 +140,11 @@ void Tank::setTurrentRotation(float r)
 sf::Vector2f Tank::getPosition() const {
     return body.getPosition();
 }
+
+float Tank::getRotation() const {
+    return body.getRotation();
+}
+
+float Tank::getTurrentRotation() const {
+    return gun.getRotation();
+}
