@@ -5,9 +5,9 @@
 #include <enet/enet.h>
 #include <SFML/System.hpp>
 
-#include "Tank.hpp"
+#include "constants.hpp"
 
-struct TransferData {
+struct TransferBuffer {
 	Group group;
 	sf::Vector2f position;
 	float speed;
@@ -20,11 +20,9 @@ public:
 	Client(std::string addressName, uint32_t portNum);
 	~Client();
 
-	void run(); // we are not using this function
-
 	void connect();
 	void send(const std::string& buffer);
-	void send(const TransferData& buffer);
+	void send(const TransferBuffer& buffer);
 	void recieve();
 	void disconnect();
 

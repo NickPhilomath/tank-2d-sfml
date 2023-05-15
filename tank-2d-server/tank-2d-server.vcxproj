@@ -159,11 +159,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\App.hpp" />
+    <ClInclude Include="include\constants.hpp" />
     <ClInclude Include="include\Player.hpp" />
     <ClInclude Include="include\Server.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Server.cpp" />
   </ItemGroup>

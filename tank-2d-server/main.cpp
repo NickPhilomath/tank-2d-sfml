@@ -5,14 +5,13 @@
 #include <stdexcept>
 #include <enet/enet.h>
 
-constexpr auto PORT = 1234;
-
-#include "Server.hpp"
+#include "App.hpp"
 
 int main() {
-	Server server(PORT);
+	App app;
+
 	try {
-		server.run();
+		app.run();
 	}
 	catch (const std::exception& e) {
 		std::cerr << e.what() << '\n';

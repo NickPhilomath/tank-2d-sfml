@@ -22,28 +22,14 @@ Client::Client(std::string addressName, uint32_t portNum)
 }
 
 Client::~Client() {
-}
-
-void Client::run() {
-	connect();
-	if (connected) {
-		for (int i = 0; i < 15; i++) {
-			TransferData data;
-			data.position = sf::Vector2f(1.123f, 2.3444f);
-
-			send(data);
-			recieve();
-		}
-
-		disconnect();
-	}
+	enet_host_destroy(clientHost);
+	enet_deinitialize();
 }
 
 void Client::connect() {
 	/* Initiate the connection, allocating the two channels 0 and 1. */
 	peer = enet_host_connect(clientHost, &address, 2, 0);
-	if (peer == NULL)
-	{
+	if (peer == NULL) {
 		throw std::runtime_error("No available peers for initiating an ENet connection");
 	}
 
@@ -63,8 +49,8 @@ void Client::send(const std::string& buffer) {
 	enet_peer_send(peer, 0, packet);
 }
 
-void Client::send(const TransferData& buffer) {
-	ENetPacket* packet = enet_packet_create(&buffer, sizeof(TransferData) + 1, ENET_PACKET_FLAG_RELIABLE);
+void Client::send(const TransferBuffer& buffer) {
+	ENetPacket* packet = enet_packet_create(&buffer, sizeof(TransferBuffer) + 1, ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(peer, 0, packet);
 }
 
@@ -72,6 +58,12 @@ void Client::recieve() {
 	while (enet_host_service(clientHost, &event, 30) > 0) {
 		switch (event.type) {
 		case ENET_EVENT_TYPE_RECEIVE:
+			{
+			TransferBuffer recvData;
+			memcpy(&recvData, event.packet->data, sizeof(TransferBuffer));
+			}
+			std::cout << event.packet->dataLength << std::endl;
+			
 
 			enet_packet_destroy(event.packet);
 			break;

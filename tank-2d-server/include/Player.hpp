@@ -5,11 +5,12 @@
 
 class Player {
 public:
-	Player(ENetPeer* peer);
+	Player(ENetPeer* peer, uint32_t id);
 	~Player();
 
-	ENetPeer* peer;
-	uint32_t ID;
+	const ENetPeer* peer;
+	const uint32_t ID;
+
 	float speed;
 	float rotation;
 	float turrentRotation;

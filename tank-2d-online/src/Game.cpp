@@ -5,11 +5,6 @@
 #include <chrono>
 #endif // _DEBUG
 
-void fun() {
-    std::cout << "independent function" << std::endl;
-}
-
-
 Game::Game() :
     client{"127.0.0.1", 1234} 
 {
@@ -45,20 +40,20 @@ void Game::networkFunction() {
 
     client.connect();
     while (client.connected) {
-        auto t_start = std::chrono::high_resolution_clock::now();
 
-        TransferData data;
+        TransferBuffer data;
         data.speed = playerTank->speed;
         data.position = playerTank->getPosition();
         data.rotation = playerTank->getRotation();
         data.turrentRotation = playerTank->getTurrentRotation();
 
         client.send(data);
+        auto t_start = std::chrono::high_resolution_clock::now(); // *
         client.recieve();
 
-        auto t_end = std::chrono::high_resolution_clock::now();
-        double elapsed_time = std::chrono::duration<double, std::milli>(t_end - t_start).count();
-        std::cout << elapsed_time << std::endl;
+        auto t_end = std::chrono::high_resolution_clock::now(); // *
+        double elapsed_time = std::chrono::duration<double, std::milli>(t_end - t_start).count(); // *
+        //std::cout << elapsed_time << std::endl;
     }
     client.disconnect();
 }
