@@ -161,13 +161,13 @@
   <ItemGroup>
     <ClInclude Include="include\App.hpp" />
     <ClInclude Include="include\constants.hpp" />
-    <ClInclude Include="include\Player.hpp" />
+    <ClInclude Include="include\Entity.hpp" />
     <ClInclude Include="include\Server.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\App.cpp" />
-    <ClCompile Include="src\Player.cpp" />
+    <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\Server.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

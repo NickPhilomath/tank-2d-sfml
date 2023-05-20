@@ -40,22 +40,23 @@ void Game::networkFunction() {
 
     client.connect();
     while (client.connected) {
-
-        TransferBuffer data;
-        data.speed = playerTank->speed;
-        data.position = playerTank->getPosition();
-        data.rotation = playerTank->getRotation();
-        data.turrentRotation = playerTank->getTurrentRotation();
-
-        client.send(data);
+        client.send(playerTank->getInput(), sizeof(PlayerInput));
         auto t_start = std::chrono::high_resolution_clock::now(); // *
-        client.recieve();
+        client.recieve(&snapShot);
+        snapshotUpdate();
 
         auto t_end = std::chrono::high_resolution_clock::now(); // *
         double elapsed_time = std::chrono::duration<double, std::milli>(t_end - t_start).count(); // *
         //std::cout << elapsed_time << std::endl;
     }
     client.disconnect();
+}
+
+void Game::snapshotUpdate() {
+    playerTank->setPosition(snapShot.position);
+    playerTank->setRotation(snapShot.rotation);
+    playerTank->setTurrentRotation(snapShot.turrentRotation);
+    LOG(snapShot.rotation, ' ', snapShot.turrentRotation);
 }
 
 void Game::run() {
@@ -86,8 +87,11 @@ void Game::run() {
         // get events 
         sf::Event event;
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed) {
                 window.close();
+                client.connected = false;
+                std::this_thread::sleep_for(std::chrono::milliseconds(110));
+            }
 
             camera.onEvent(event);
         }

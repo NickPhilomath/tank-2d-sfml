@@ -45,25 +45,23 @@ void Client::connect() {
 }
 
 void Client::send(const std::string& buffer) {
-	ENetPacket* packet = enet_packet_create(buffer.c_str(), buffer.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+	ENetPacket* packet = enet_packet_create(buffer.c_str(), buffer.size(), ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(peer, 0, packet);
 }
 
-void Client::send(const TransferBuffer& buffer) {
-	ENetPacket* packet = enet_packet_create(&buffer, sizeof(TransferBuffer) + 1, ENET_PACKET_FLAG_RELIABLE);
+void Client::send(const void* buffer, size_t size) {
+	ENetPacket* packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(peer, 0, packet);
+
+	//std::cout << "*** " << input2.move << std::endl;
 }
 
-void Client::recieve() {
+void Client::recieve(TransferBuffer* snapShot) {
 	while (enet_host_service(clientHost, &event, 30) > 0) {
 		switch (event.type) {
 		case ENET_EVENT_TYPE_RECEIVE:
-			{
-			TransferBuffer recvData;
-			memcpy(&recvData, event.packet->data, sizeof(TransferBuffer));
-			}
-			std::cout << event.packet->dataLength << std::endl;
-			
+			memcpy(snapShot, event.packet->data, sizeof(TransferBuffer));
+			//std::cout << event.packet->dataLength << std::endl;
 
 			enet_packet_destroy(event.packet);
 			break;
@@ -77,8 +75,9 @@ void Client::recieve() {
 }
 
 void Client::disconnect() {
+	bool disconnected = false;
 	enet_peer_disconnect(peer, 0);
-	while (enet_host_service(clientHost, &event, 3000) > 0)
+	while (enet_host_service(clientHost, &event, 100) > 0)
 	{
 		switch (event.type)
 		{
@@ -87,11 +86,10 @@ void Client::disconnect() {
 			break;
 		case ENET_EVENT_TYPE_DISCONNECT:
 			std::cout << "Disconnection succeeded. \n";
-			connected = false;
+			disconnected = true;
 		}
 	}
 	/* We've arrived here, so the disconnect attempt didn't */
 	/* succeed yet.  Force the connection down.             */
-	if(connected) enet_peer_reset(peer);
-	connected = false;
+	if(!disconnected) enet_peer_reset(peer);
 }

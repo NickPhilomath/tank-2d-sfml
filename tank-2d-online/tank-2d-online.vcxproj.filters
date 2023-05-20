@@ -38,7 +38,7 @@
     <ClInclude Include="include\Tank.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ptch\constants.hpp">
+    <ClInclude Include="ptch\clientConstants.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Camera.hpp">

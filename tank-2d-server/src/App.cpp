@@ -4,58 +4,54 @@ App::App() : server{PORT} {
 }
 
 App::~App() {
-	for (auto player : players) {
+	for (auto player : entities) {
 		delete player;
 	}
 }
 
 void App::networkFunction() {
-	std::cout << "networkFunction start." << std::endl;
+	LOG("networkFunction start.");
 	while (true) {
 		while (enet_host_service(server.serverHost, &server.event, 30) > 0) {
 			if (server.event.type == ENET_EVENT_TYPE_CONNECT) {
-				Player* player = new Player(server.event.peer, server.event.peer->incomingPeerID);
-				players.push_back(player);
-				std::cout
-					<< "A new client connected from " << server.event.peer->address.host
-					<< " port: " << server.event.peer->address.port
-					<< " peerID: " << server.event.peer->incomingPeerID
-					<< ".\n";
+				Entity* entity = new Entity(server.event.peer, server.event.peer->incomingPeerID);
+				entities.push_back(entity);
+				LOG("A new client connected from ", server.event.peer->address.host, 
+					" port: ", server.event.peer->address.port, 
+					" peerID: ", server.event.peer->incomingPeerID,".\n");
 			}
 			else if (server.event.type == ENET_EVENT_TYPE_RECEIVE) {
-				TransferBuffer recvData;
-				memcpy(&recvData, server.event.packet->data, sizeof(TransferBuffer));
-				//std::cout << recvData.position.x << " " << recvData.position.y << " " << recvData.rotation << " " << recvData.turrentRotation << std::endl;
+				PlayerInput inputData;
+				memcpy(&inputData, server.event.packet->data, sizeof(PlayerInput));
+				LOG(inputData.move, " ", inputData.rotate, " ", inputData.turrentRotate);
 
 				// find and set data 
-				for (auto player : players) {
-					if (player->ID == server.event.peer->incomingPeerID) {
-						player->position = recvData.position;
-						player->rotation = recvData.rotation;
-						player->turrentRotation = recvData.turrentRotation;
+				for (auto entity : entities) {
+					if (entity->ID == server.event.peer->incomingPeerID) {
+						entity->inputUpdate(inputData);
 						break;
 					}
 				}
 				enet_packet_destroy(server.event.packet);
 
 				// send back a data 
-				for (auto player : players) {
-					if (player->ID == server.event.peer->incomingPeerID) {
+				for (auto entity : entities) {
+					if (entity->ID == server.event.peer->incomingPeerID) {
 						TransferBuffer data;
-						data.position = player->position;
-						data.rotation = player->rotation;
-						data.turrentRotation = player->turrentRotation;
+						data.position = entity->position;
+						data.rotation = entity->rotation;
+						data.turrentRotation = entity->turrentRotation;
 						server.send(data, server.event.peer);
 						break;
 					}
 				}
 			}
 			else if (server.event.type == ENET_EVENT_TYPE_DISCONNECT) {
-				std::cout << server.event.peer->incomingPeerID << " disconnected. \n";
+				std::cout << server.event.peer->incomingPeerID << " disconnected. " << entities.size() << " players \n";
 				// remove from peers array
-				for (uint32_t i = 0; i < players.size(); i++) {
-					if (players[i]->ID == server.event.peer->incomingPeerID) {
-						players.erase(players.begin() + i);
+				for (uint32_t i = 0; i < entities.size(); i++) {
+					if (entities[i]->ID == server.event.peer->incomingPeerID) {
+						entities.erase(entities.begin() + i);
 					}
 				}
 				// std::cout << "// vector size: " << peers.size() << "\n";
@@ -66,14 +62,24 @@ void App::networkFunction() {
 }
 
 void App::run() {
+	running = true;
+
 	std::thread netThred(&App::networkFunction, this);
 	netThred.detach();
 	//networkFunction();
 
-	while(true)
-		std::this_thread::sleep_for(std::chrono::seconds(5));
+	while (running) {
+		static auto t_start = std::chrono::high_resolution_clock::now();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		auto t_end = std::chrono::high_resolution_clock::now();
+		float elapsed_time = std::chrono::duration<float, std::milli>(t_end - t_start).count();
+		t_start = t_end;
 
-	std::cout << "run." << std::endl;
+		for (auto entity : entities) {
+			entity->update(elapsed_time / 1000.f);
+		}
+		
+	}
 }
 
 

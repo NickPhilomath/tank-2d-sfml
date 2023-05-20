@@ -94,7 +94,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>include;ptch;$(SolutionDir)include;$(SolutionDir)libs\enet-1.3.17\include;$(SolutionDir)include\glm;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;ptch;$(SolutionDir)include;$(SolutionDir)tank-2d-server\include;$(SolutionDir)libs\enet-1.3.17\include;$(SolutionDir)include\glm;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -112,7 +112,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>include;ptch;$(SolutionDir)include;$(SolutionDir)libs\enet-1.3.17\include;$(SolutionDir)include\glm;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;ptch;$(SolutionDir)include;$(SolutionDir)tank-2d-server\include;$(SolutionDir)libs\enet-1.3.17\include;$(SolutionDir)include\glm;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,7 +130,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>include;ptch;$(SolutionDir)include;$(SolutionDir)libs\enet-1.3.17\include;$(SolutionDir)include\glm;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;ptch;$(SolutionDir)include;$(SolutionDir)tank-2d-server\include;$(SolutionDir)libs\enet-1.3.17\include;$(SolutionDir)include\glm;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,7 +148,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>include;ptch;$(SolutionDir)include;$(SolutionDir)libs\enet-1.3.17\include;$(SolutionDir)include\glm;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;ptch;$(SolutionDir)include;$(SolutionDir)tank-2d-server\include;$(SolutionDir)libs\enet-1.3.17\include;$(SolutionDir)include\glm;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -171,7 +171,7 @@
     <ClInclude Include="include\Client.hpp" />
     <ClInclude Include="include\Game.hpp" />
     <ClInclude Include="include\Tank.hpp" />
-    <ClInclude Include="ptch\constants.hpp" />
+    <ClInclude Include="ptch\clientConstants.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

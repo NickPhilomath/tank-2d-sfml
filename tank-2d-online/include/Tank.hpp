@@ -3,18 +3,9 @@
 #include <math.h>
 #include <SFML/Graphics.hpp>
 
-#include "constants.hpp"
+#include "clientConstants.hpp"
 
-struct TankProps
-{
-	float forward_maxSpeed = 200.f;
-	float backward_maxSpeed = -70.f;
-	float forward_acceleration = 120.f;
-	float backward_acceleration = 90.f;
-	float break_acceleration = 400.f;
-	float rotationSpeed = 60.f;
-	float turrentRotationSpeed = 90.f;
-};
+
 
 class Tank {
 public:
@@ -35,6 +26,9 @@ public:
 
 	float speed;
 
+	PlayerInput input{};
+	PlayerInput* getInput();
+
 private:
 	const TankProps props;
 	const Group group;
@@ -44,4 +38,5 @@ private:
 	sf::ConvexShape body;
 	sf::CircleShape turrent;
 	sf::RectangleShape gun;
+
 };

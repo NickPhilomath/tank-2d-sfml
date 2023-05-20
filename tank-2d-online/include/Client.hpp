@@ -5,15 +5,7 @@
 #include <enet/enet.h>
 #include <SFML/System.hpp>
 
-#include "constants.hpp"
-
-struct TransferBuffer {
-	Group group;
-	sf::Vector2f position;
-	float speed;
-	float rotation;
-	float turrentRotation;
-};
+#include "clientConstants.hpp"
 
 class Client {
 public:
@@ -22,8 +14,8 @@ public:
 
 	void connect();
 	void send(const std::string& buffer);
-	void send(const TransferBuffer& buffer);
-	void recieve();
+	void send(const void* buffer, size_t size);
+	void recieve(TransferBuffer* snapShot);
 	void disconnect();
 
 	bool connected = false;
