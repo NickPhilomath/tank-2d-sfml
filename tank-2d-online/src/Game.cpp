@@ -1,12 +1,8 @@
 #include "Game.hpp"
 
-#ifdef _DEBUG
-#include <iostream>
-#include <chrono>
-#endif // _DEBUG
-
 Game::Game() :
-    client{"127.0.0.1", 1234} 
+    client{"127.0.0.1", 1234},
+    ui{&gameFlag, &connectionFail}
 {
     TankProps globalProps{};
     playerTank = new Tank(G_PLAYER, globalProps);
@@ -21,6 +17,17 @@ Game::Game() :
         tank->setPosition(sf::Vector2f(250, 150));
         tanks.push_back(tank);
     }
+
+    mapBorder.setPointCount(4);
+    mapBorder.setPoint(0, sf::Vector2f(0, 0));
+    mapBorder.setPoint(1, sf::Vector2f(1000, 0));
+    mapBorder.setPoint(2, sf::Vector2f(1000, 1000));
+    mapBorder.setPoint(3, sf::Vector2f(0, 1000));
+    mapBorder.setOutlineThickness(2);
+    mapBorder.setFillColor(sf::Color::Transparent);
+    mapBorder.setOutlineColor(sf::Color::Blue);
+
+    createWindow();
 }
 
 Game::~Game() {
@@ -37,8 +44,14 @@ void Game::createWindow() {
 }
 
 void Game::networkFunction() {
+    net_fun_start:
+    while(gameFlag == ON_MAIN_MENU)
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     client.connect();
+    if (client.connected) { gameFlag = IN_GAME; }
+    else { gameFlag = ON_MAIN_MENU; connectionFail = true; goto net_fun_start; }
+
     while (client.connected) {
         client.send(playerTank->getInput(), sizeof(PlayerInput));
         auto t_start = std::chrono::high_resolution_clock::now(); // *
@@ -56,31 +69,14 @@ void Game::snapshotUpdate() {
     playerTank->setPosition(snapShot.position);
     playerTank->setRotation(snapShot.rotation);
     playerTank->setTurrentRotation(snapShot.turrentRotation);
-    LOG(snapShot.rotation, ' ', snapShot.turrentRotation);
+    //LOG(snapShot.rotation, ' ', snapShot.turrentRotation);
 }
 
 void Game::run() {
     std::thread netThread(&Game::networkFunction, this);
     netThread.detach();
 
-	createWindow();
-
-    sf::Clock clock;
-
-    sf::ConvexShape mapBorder;
-    mapBorder.setPointCount(4);
-    mapBorder.setPoint(0, sf::Vector2f(0, 0));
-    mapBorder.setPoint(1, sf::Vector2f(1000, 0));
-    mapBorder.setPoint(2, sf::Vector2f(1000, 1000));
-    mapBorder.setPoint(3, sf::Vector2f(0, 1000));
-    mapBorder.setOutlineThickness(2);
-    mapBorder.setFillColor(sf::Color::Transparent);
-    mapBorder.setOutlineColor(sf::Color::Blue);
-
-    Camera camera{VIEW_WIDTH, VIEW_HEIGHT};
     camera.viewTarget = playerTank;
-    //sf::View view(sf::FloatRect(playerTank->getPosition().x - VIEW_WIDTH / 2, playerTank->getPosition().y - VIEW_HEIGHT / 2, VIEW_WIDTH, VIEW_HEIGHT));
-
     //window.setMouseCursorVisible(false);
 
     while (window.isOpen()) {
@@ -98,20 +94,27 @@ void Game::run() {
 
         // update
         float DT = clock.restart().asSeconds();
-        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-
-        playerTank->update(DT, mousePos);
+        if (gameFlag == IN_GAME) {
+            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+            playerTank->update(DT, mousePos);
         
-        camera.update(DT);
-        window.setView(camera.cameraView);
+            camera.update(DT);
+            window.setView(camera.cameraView);
+        }
+        ui.update();
 
         // render
         window.clear();
-        playerTank->render(window);
-        for (auto tank : tanks) {
-            tank->render(window);
+
+        if (gameFlag == IN_GAME) {
+            playerTank->render(window);
+            for (auto tank : tanks) {
+                tank->render(window);
+            }
+            window.draw(mapBorder);
         }
-        window.draw(mapBorder);
+
+        ui.render(window);
         window.display();
     }
 }

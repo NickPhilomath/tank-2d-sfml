@@ -7,6 +7,7 @@
 #include "Tank.hpp"
 #include "Camera.hpp"
 #include "Client.hpp"
+#include "UI.hpp"
 
 class Game {
 public:
@@ -21,11 +22,17 @@ private:
 
 	void snapshotUpdate();
 
-	sf::RenderWindow window; 
+	sf::ConvexShape mapBorder;
 	Tank* playerTank;
 	std::vector<Tank*> tanks;
-	Client client;
 
-	//
+	UI ui;
+	Client client;
+	sf::Clock clock;
+	sf::RenderWindow window;
+	Camera camera{ VIEW_WIDTH, VIEW_HEIGHT };
+	GameFlag gameFlag;
+	bool connectionFail = false;
+	
 	TransferBuffer snapShot;
 };
