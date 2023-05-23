@@ -18,13 +18,16 @@
     <ClInclude Include="include\Server.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Entity.hpp">
+    <ClInclude Include="include\Player.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\App.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\constants.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Room.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,10 +38,13 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Entity.cpp">
+    <ClCompile Include="src\Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\App.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Room.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

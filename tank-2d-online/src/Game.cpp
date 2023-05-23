@@ -5,15 +5,15 @@ Game::Game() :
     ui{&gameFlag, &connectionFail}
 {
     TankProps globalProps{};
-    playerTank = new Tank(G_PLAYER, globalProps);
+    playerTank = new Tank(G_PLAYER, globalProps, -1);
     playerTank->setPosition(sf::Vector2f(300, 300));
     {
-        Tank* tank = new Tank(G_ENAMY, globalProps);
+        Tank* tank = new Tank(G_ENAMY, globalProps, -1);
         tank->setPosition(sf::Vector2f(50, 50));
         tanks.push_back(tank);
     }
     {
-        Tank* tank = new Tank(Group::G_ALLIE, globalProps);
+        Tank* tank = new Tank(Group::G_ALLIE, globalProps, -1);
         tank->setPosition(sf::Vector2f(250, 150));
         tanks.push_back(tank);
     }
@@ -55,7 +55,8 @@ void Game::networkFunction() {
     while (client.connected) {
         client.send(playerTank->getInput(), sizeof(PlayerInput));
         auto t_start = std::chrono::high_resolution_clock::now(); // *
-        client.recieve(&snapShot);
+
+        client.recieve(snapshot);
         snapshotUpdate();
 
         auto t_end = std::chrono::high_resolution_clock::now(); // *
@@ -66,9 +67,10 @@ void Game::networkFunction() {
 }
 
 void Game::snapshotUpdate() {
-    playerTank->setPosition(snapShot.position);
-    playerTank->setRotation(snapShot.rotation);
-    playerTank->setTurrentRotation(snapShot.turrentRotation);
+    playerTank->setPosition(snapshot[0].position);
+    playerTank->setRotation(snapshot[0].rotation);
+    playerTank->setTurrentRotation(snapshot[0].turrentRotation);
+    
     //LOG(snapShot.rotation, ' ', snapShot.turrentRotation);
 }
 

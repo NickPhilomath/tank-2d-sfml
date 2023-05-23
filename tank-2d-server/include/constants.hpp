@@ -8,12 +8,26 @@ constexpr auto GROUND_FRICTION_ACCELERATION = 50.f;
 
 enum Group {
 	G_PLAYER = 0,
-	G_ALLIE = 1,
-	G_ENAMY = 2
+	G_ALLIE,
+	G_ENAMY
 };
 
-struct TransferBuffer {
+enum DataHeader {
+	H_PLAYER_UPDATE = 0,
+	H_ADD_PLAYER,
+	H_BULLET_UPDATE,
+	H_ADD_BULLET
+};
+
+struct SnapshotInfo {
+	const void* snapshotData;
+	size_t size;
+};
+
+struct TransferData {
+	DataHeader header;
 	Group group;
+	uint32_t ID;
 	sf::Vector2f position;
 	float speed;
 	float rotation;
@@ -38,9 +52,9 @@ struct PlayerInput {
 
 enum AccelerationStage {
 	A_NO_POWER = 0,
-	A_FORWARD = 1,
-	A_BACKWARD = 2,
-	A_BREAKE = 3
+	A_FORWARD,
+	A_BACKWARD,
+	A_BREAKE
 };
 
 // utilities

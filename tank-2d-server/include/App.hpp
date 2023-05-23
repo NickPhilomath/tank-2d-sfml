@@ -3,7 +3,8 @@
 #include <vector>
 #include <thread>
 
-#include "Entity.hpp"
+#include "Room.hpp"
+#include "Player.hpp"
 #include "Server.hpp"
 
 #include "constants.hpp"
@@ -21,6 +22,6 @@ private:
 	void networkFunction();
 
 	bool running = false;
-	std::vector<Entity*> entities;
+	Room room;
 	Server server;
 };

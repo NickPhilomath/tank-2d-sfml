@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include <vector>
 #include <stdexcept>
 #include <enet/enet.h>
 #include <SFML/System.hpp>
@@ -15,12 +15,14 @@ public:
 	void connect();
 	void send(const std::string& buffer);
 	void send(const void* buffer, size_t size);
-	void recieve(TransferBuffer* snapShot);
+	void recieve(std::vector<TransferData>& gameSnapshot);
 	void disconnect();
 
 	bool connected = false;
 
 private:
+	void castSnapshot(SnapshotInfo snapshotInfo, std::vector<TransferData>& gameSnapshot);
+
 	std::string serverAddress;
 	ENetHost* clientHost;
 	ENetAddress address;

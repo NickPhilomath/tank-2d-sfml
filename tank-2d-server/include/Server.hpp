@@ -12,7 +12,7 @@ public:
 	~Server();
 
 	void send(const std::string& buffer, ENetPeer* peer);
-	void send(const TransferBuffer& buffer, ENetPeer* peer);
+	void send(const TransferData& buffer, ENetPeer* peer);
 	void send(const void* buffer, uint32_t size, ENetPeer* peer);
 	void disconnect(ENetPeer* peer);
 

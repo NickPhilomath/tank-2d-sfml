@@ -5,10 +5,10 @@
 
 #include "constants.hpp"
 
-class Entity {
+class Player {
 public:
-	Entity(ENetPeer* peer, uint32_t id);
-	~Entity();
+	Player(ENetPeer* peer, uint32_t id);
+	~Player();
 
 	void update(float deltaTime);
 	void inputUpdate(PlayerInput input);

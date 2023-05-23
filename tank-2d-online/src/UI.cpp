@@ -119,6 +119,12 @@ void UI::moveTo(std::string position, sf::Text& text) {
     if (position == "center") {
         text.setPosition(VIEW_WIDTH / 2 - text.getGlobalBounds().width / 2, text.getPosition().y);
     }
+    else if (position == "left") {
+        text.setPosition(0, text.getPosition().y);
+    }
+    else if (position == "right") {
+        text.setPosition(VIEW_WIDTH - text.getGlobalBounds().width, text.getPosition().y);
+    }
 }
 
 std::string UI::getPressedLetter() {

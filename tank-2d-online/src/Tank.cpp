@@ -5,9 +5,10 @@
 #endif // _DEBUG
 
 
-Tank::Tank(Group group, TankProps props) :
+Tank::Tank(Group group, TankProps props, int id) :
     props{ props },
-    group{ group }
+    group{ group },
+    ID{id}
 {
     acceleration_stage = A_NO_POWER;
     speed = 0.f;

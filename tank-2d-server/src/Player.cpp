@@ -1,15 +1,15 @@
-#include "Entity.hpp"
+#include "Player.hpp"
 
-Entity::Entity(ENetPeer* peer, uint32_t id) :
+Player::Player(ENetPeer* peer, uint32_t id) :
 	peer{ peer }, ID{id} {
     acceleration_stage = A_NO_POWER;
     speed = 0.f;
 }
 
-Entity::~Entity() {
+Player::~Player() {
 }
 
-void Entity::update(float deltaTime) {
+void Player::update(float deltaTime) {
     
     switch (acceleration_stage)
     {
@@ -51,7 +51,7 @@ void Entity::update(float deltaTime) {
     }
 }
 
-void Entity::inputUpdate(PlayerInput input) {
+void Player::inputUpdate(PlayerInput input) {
     if (input.move == 1) {
         acceleration_stage = A_FORWARD;
     }

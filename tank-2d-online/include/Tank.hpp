@@ -10,7 +10,7 @@
 class Tank {
 public:
 
-	Tank(Group group, TankProps props);
+	Tank(Group group, TankProps props, int id);
 	~Tank();
 
 	void update(float deltaTime, sf::Vector2i mousePos);
@@ -28,6 +28,8 @@ public:
 
 	PlayerInput input{};
 	PlayerInput* getInput();
+
+	int ID;
 
 private:
 	const TankProps props;

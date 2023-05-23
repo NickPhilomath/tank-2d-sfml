@@ -22,6 +22,8 @@ private:
 
 	void snapshotUpdate();
 
+	std::vector<TransferData> snapshot;
+
 	sf::ConvexShape mapBorder;
 	Tank* playerTank;
 	std::vector<Tank*> tanks;
@@ -33,6 +35,4 @@ private:
 	Camera camera{ VIEW_WIDTH, VIEW_HEIGHT };
 	GameFlag gameFlag;
 	bool connectionFail = false;
-	
-	TransferBuffer snapShot;
 };
