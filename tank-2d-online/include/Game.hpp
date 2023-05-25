@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "clientConstants.hpp"
+#include "Buffer.hpp"
 #include "Tank.hpp"
 #include "Camera.hpp"
 #include "Client.hpp"
@@ -22,7 +23,7 @@ private:
 
 	void snapshotUpdate();
 
-	std::vector<TransferData> snapshot;
+	Buffer snapshot;
 
 	sf::ConvexShape mapBorder;
 	Tank* playerTank;

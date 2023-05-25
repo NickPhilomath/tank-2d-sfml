@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "Player.hpp"
+#include "Buffer.hpp"
 
 class Room {
 public:
@@ -13,15 +14,15 @@ public:
 
 	void addPlayer(Player* player);
 	void inputUpdatePlayer(uint32_t id, const void* inputData);
-	SnapshotInfo getSnapshot(uint32_t id);
+	BufferInfo getSnapshot(uint32_t id);
 	sf::Vector2i numOfPlayersInTeams();
 
 private:
 	void takeSnapshot();
-	void changeGroupNameByPlayerPOV(uint32_t id);
 
 	std::vector<Player*> team1;
 	std::vector<Player*> team2;
 
-	std::vector<TransferData> snapshot; // <- here it is
+	GameStage gameStage;
+	Buffer snapshotBuffer;
 };

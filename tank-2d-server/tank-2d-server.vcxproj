@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\App.hpp" />
+    <ClInclude Include="include\Buffer.hpp" />
     <ClInclude Include="include\constants.hpp" />
     <ClInclude Include="include\Player.hpp" />
     <ClInclude Include="include\Room.hpp" />
@@ -168,6 +169,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\Buffer.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Room.cpp" />
     <ClCompile Include="src\Server.cpp" />

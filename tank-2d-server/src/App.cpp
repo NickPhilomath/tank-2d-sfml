@@ -16,12 +16,19 @@ void App::networkFunction() {
 				LOG("A new client connected from ", server.event.peer->address.host, 
 					" port: ", server.event.peer->address.port, 
 					" peerID: ", server.event.peer->incomingPeerID,".\n");
+				// send back player's ID in the server
+				Buffer IDBuffer;
+				PlayerIDData data;
+				data.id = server.event.peer->incomingPeerID;
+				IDBuffer.writeToBuffer(&data, sizeof(PlayerIDData));
+				BufferInfo info = IDBuffer.getBufferInfo();
+				server.send(info.bufferData, info.size, server.event.peer);
 			}
 			else if (server.event.type == ENET_EVENT_TYPE_RECEIVE) {
 				room.inputUpdatePlayer(server.event.peer->incomingPeerID, server.event.packet->data);
 				enet_packet_destroy(server.event.packet);
-				SnapshotInfo snapshotInfo = room.getSnapshot(server.event.peer->incomingPeerID);
-				server.send(snapshotInfo.snapshotData, snapshotInfo.size, server.event.peer);
+				BufferInfo bufferInfo = room.getSnapshot(server.event.peer->incomingPeerID);
+				server.send(bufferInfo.bufferData, bufferInfo.size, server.event.peer);
 				// server.send((static_cast<void *>(snapshot.data())), snapshot.size(), server.event.peer);
 			}
 			else if (server.event.type == ENET_EVENT_TYPE_DISCONNECT) {

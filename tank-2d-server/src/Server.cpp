@@ -29,12 +29,7 @@ void Server::send(const std::string& buffer, ENetPeer* peer) {
 	enet_peer_send(peer, 0, packet);
 }
 
-void Server::send(const TransferData& buffer, ENetPeer* peer) {
-	ENetPacket* packet = enet_packet_create(&buffer, sizeof(TransferData), ENET_PACKET_FLAG_RELIABLE);
-	enet_peer_send(peer, 0, packet);
-}
-
-void Server::send(const void* buffer, uint32_t size, ENetPeer* peer) {
+void Server::send(const void* buffer, size_t size, ENetPeer* peer) {
 	ENetPacket* packet = enet_packet_create(buffer, size + 1, ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(peer, 0, packet);
 }

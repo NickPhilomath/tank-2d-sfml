@@ -6,6 +6,7 @@
 #include <SFML/System.hpp>
 
 #include "clientConstants.hpp"
+#include "Buffer.hpp"
 
 class Client {
 public:
@@ -15,14 +16,12 @@ public:
 	void connect();
 	void send(const std::string& buffer);
 	void send(const void* buffer, size_t size);
-	void recieve(std::vector<TransferData>& gameSnapshot);
+	void recieve(Buffer& buffer);
 	void disconnect();
 
 	bool connected = false;
 
 private:
-	void castSnapshot(SnapshotInfo snapshotInfo, std::vector<TransferData>& gameSnapshot);
-
 	std::string serverAddress;
 	ENetHost* clientHost;
 	ENetAddress address;

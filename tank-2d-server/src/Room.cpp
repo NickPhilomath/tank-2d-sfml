@@ -1,6 +1,7 @@
 #include "Room.hpp"
 
 Room::Room() {
+	gameStage = GS_STARTING;
 }
 
 Room::~Room() {
@@ -13,9 +14,13 @@ Room::~Room() {
 }
 
 void Room::update(float deltaTime) {
-	for (auto player : team1) { player->update(deltaTime); }
-	for (auto player : team2) { player->update(deltaTime); }
+	gameStage = GS_RUNNING;
 
+	if (gameStage == GS_RUNNING) {
+		for (auto player : team1) { player->update(deltaTime); }
+		for (auto player : team2) { player->update(deltaTime); }
+	}
+	// we are taking snapshot at every update but actually update rate should be more
 	takeSnapshot();
 }
 
@@ -43,16 +48,10 @@ void Room::inputUpdatePlayer(uint32_t id, const void* inputData) {
 			return;
 		}
 	}
-
-
 }
 
-SnapshotInfo Room::getSnapshot(uint32_t id) {
-	changeGroupNameByPlayerPOV(id); // *too long comment here*
-	SnapshotInfo snapshotInfo{};
-	snapshotInfo.snapshotData = static_cast<void*>(snapshot.data());
-	snapshotInfo.size = snapshot.size() * sizeof(TransferData);
-	return snapshotInfo;
+BufferInfo Room::getSnapshot(uint32_t id) {
+	return snapshotBuffer.getBufferInfo();
 }
 
 sf::Vector2i Room::numOfPlayersInTeams() {
@@ -60,33 +59,38 @@ sf::Vector2i Room::numOfPlayersInTeams() {
 }
 
 void Room::takeSnapshot() {
-	snapshot.clear();
+	// clean the buffer
+	snapshotBuffer.cleanBuffer();
 
-	for (auto player : team1) {
-		TransferData data;
-		data.header = H_PLAYER_UPDATE;
-		//data.group = G_PLAYER;
-		data.ID = player->ID;
-		data.position = player->position;
-		data.rotation = player->rotation;
-		data.turrentRotation = player->turrentRotation;
+	
 
-		snapshot.push_back(data);
+	{
+		GameStageData data;
+		data.stage = GS_RUNNING;
+
+		snapshotBuffer.writeToBuffer(&data, sizeof(GameStageData));
 	}
+	if (gameStage == GS_RUNNING) {
+		//LOG(team1.size(), " ", team2.size());
 
-	for (auto player : team2) {
-		TransferData data;
-		data.header = H_PLAYER_UPDATE;
-		//data.group = G_PLAYER;
-		data.ID = player->ID;
-		data.position = player->position;
-		data.rotation = player->rotation;
-		data.turrentRotation = player->turrentRotation;
+		for (auto player : team1) {
+			PlayerUpdateData data;
+			//data.group = G_PLAYER;
+			data.ID = player->ID;
+			data.position = player->position;
+			data.rotation = player->rotation;
+			data.turrentRotation = player->turrentRotation;
+			snapshotBuffer.writeToBuffer(&data, sizeof(PlayerUpdateData));
+		}
 
-		snapshot.push_back(data);
+		for (auto player : team2) {
+			PlayerUpdateData data;
+			//data.group = G_PLAYER;
+			data.ID = player->ID;
+			data.position = player->position;
+			data.rotation = player->rotation;
+			data.turrentRotation = player->turrentRotation;
+			snapshotBuffer.writeToBuffer(&data, sizeof(PlayerUpdateData));
+		}
 	}
-}
-
-void Room::changeGroupNameByPlayerPOV(uint32_t id) {
-	bool playerIsInFirstTeam = false;
 }

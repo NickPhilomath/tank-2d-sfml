@@ -51,6 +51,9 @@ void Game::networkFunction() {
     client.connect();
     if (client.connected) { gameFlag = IN_GAME; }
     else { gameFlag = ON_MAIN_MENU; connectionFail = true; goto net_fun_start; }
+    // get player's ID in the server room
+    client.recieve(snapshot);
+    snapshotUpdate();
 
     while (client.connected) {
         client.send(playerTank->getInput(), sizeof(PlayerInput));
@@ -67,10 +70,65 @@ void Game::networkFunction() {
 }
 
 void Game::snapshotUpdate() {
+    BufferInfo bufferInfo = snapshot.getBufferInfo();
+
+    int offset = 0;
+
+    while (offset < bufferInfo.size) {
+        int header;
+        memcpy(&header, offset + (char*)bufferInfo.bufferData, sizeof(int));
+        //LOG(header);
+        // we must handle all type of data
+        if (header == H_PLAYER_ID) {
+            PlayerIDData data;
+            memcpy(&data, offset + (char*)bufferInfo.bufferData, sizeof(PlayerIDData));
+            offset += sizeof(PlayerIDData);
+            playerTank->ID = data.id;
+            //LOG("player ID: ", data.id);
+        }
+        else if (header == H_GAME_STAGE) {
+            GameStageData data;
+            memcpy(&data, offset + (char*)bufferInfo.bufferData, sizeof(GameStageData));
+            offset += sizeof(GameStageData);
+        }
+        else if (header == H_PLAYER_UPDATE) {
+            PlayerUpdateData data;
+            memcpy(&data, offset + (char*)bufferInfo.bufferData, sizeof(PlayerUpdateData));
+            offset += sizeof(PlayerUpdateData);
+
+            if (data.ID == playerTank->ID) {
+                //LOG("data: ", data.position.x, " ", data.rotation, " ", data.turrentRotation);
+                playerTank->setPosition(data.position);
+                playerTank->setRotation(data.rotation);
+                playerTank->setTurrentRotation(data.turrentRotation);
+            }
+            else {
+                bool found = false;
+                for (auto tank : tanks) {
+                    if (tank->ID == data.ID) {
+                        tank->setPosition(data.position);
+                        tank->setRotation(data.rotation);
+                        tank->setTurrentRotation(data.turrentRotation);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    TankProps globalProps{};
+                    Tank* tank = new Tank(G_ALLIE, globalProps, data.ID);
+                    tank->setPosition(data.position);
+                    tanks.push_back(tank);
+                }
+            }
+        }
+
+
+    }
+    /*
     playerTank->setPosition(snapshot[0].position);
     playerTank->setRotation(snapshot[0].rotation);
     playerTank->setTurrentRotation(snapshot[0].turrentRotation);
-    
+    */
     //LOG(snapShot.rotation, ' ', snapShot.turrentRotation);
 }
 

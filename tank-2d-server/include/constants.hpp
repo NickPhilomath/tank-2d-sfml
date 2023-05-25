@@ -13,19 +13,34 @@ enum Group {
 };
 
 enum DataHeader {
-	H_PLAYER_UPDATE = 0,
-	H_ADD_PLAYER,
-	H_BULLET_UPDATE,
-	H_ADD_BULLET
+	H_GAME_STAGE = 0,
+	H_PLAYER_UPDATE,
+	H_PLAYER_ID
 };
 
-struct SnapshotInfo {
-	const void* snapshotData;
+struct BufferInfo {
+	void* bufferData;
 	size_t size;
 };
 
-struct TransferData {
-	DataHeader header;
+enum GameStage {
+	GS_STARTING = 0,
+	GS_RUNNING,
+	GS_ENDED
+};
+
+struct GameStageData {
+	DataHeader header = H_GAME_STAGE;
+	GameStage stage;
+};
+
+struct PlayerIDData {
+	DataHeader header = H_PLAYER_ID;
+	uint32_t id;
+};
+
+struct PlayerUpdateData {
+	DataHeader header = H_PLAYER_UPDATE;
 	Group group;
 	uint32_t ID;
 	sf::Vector2f position;
@@ -66,11 +81,7 @@ template<typename ...T>
 void Print(T&&... args) {
 	(std::cout << ... << args);
 }
-
 #define LOG(...) Print(__VA_ARGS__, '\n')
-
 #else
-
 #define LOG(...)
-
 #endif
