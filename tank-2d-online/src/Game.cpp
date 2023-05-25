@@ -148,13 +148,15 @@ void Game::run() {
                 client.connected = false;
                 std::this_thread::sleep_for(std::chrono::milliseconds(110));
             }
+            if (event.type == sf::Event::GainedFocus) windowOnFocus = true;
+            if (event.type == sf::Event::LostFocus) windowOnFocus = false;
 
             camera.onEvent(event);
         }
 
         // update
         float DT = clock.restart().asSeconds();
-        if (gameFlag == IN_GAME) {
+        if (gameFlag == IN_GAME && windowOnFocus) {
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             playerTank->update(DT, mousePos);
         

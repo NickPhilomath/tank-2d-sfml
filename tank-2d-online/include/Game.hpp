@@ -36,4 +36,5 @@ private:
 	Camera camera{ VIEW_WIDTH, VIEW_HEIGHT };
 	GameFlag gameFlag;
 	bool connectionFail = false;
+	bool windowOnFocus = true;
 };
