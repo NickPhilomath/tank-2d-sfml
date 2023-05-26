@@ -34,5 +34,10 @@ void Server::send(const void* buffer, size_t size, ENetPeer* peer) {
 	enet_peer_send(peer, 0, packet);
 }
 
+void Server::send(const void* buffer, size_t size, ENetPeer* peer, _ENetPacketFlag flag) {
+	ENetPacket* packet = enet_packet_create(buffer, size + 1, flag);
+	enet_peer_send(peer, 0, packet);
+}
+
 void Server::disconnect(ENetPeer* peer) {
 }

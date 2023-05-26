@@ -165,6 +165,7 @@
     <ClInclude Include="include\Player.hpp" />
     <ClInclude Include="include\Room.hpp" />
     <ClInclude Include="include\Server.hpp" />
+    <ClInclude Include="include\Timer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -173,6 +174,7 @@
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Room.cpp" />
     <ClCompile Include="src\Server.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

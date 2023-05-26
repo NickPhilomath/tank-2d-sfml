@@ -52,8 +52,11 @@ void Client::send(const std::string& buffer) {
 void Client::send(const void* buffer, size_t size) {
 	ENetPacket* packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
 	enet_peer_send(peer, 0, packet);
+}
 
-	//std::cout << "*** " << input2.move << std::endl;
+void Client::send(const void* buffer, size_t size, _ENetPacketFlag flag) {
+	ENetPacket* packet = enet_packet_create(buffer, size, flag);
+	enet_peer_send(peer, 0, packet);
 }
 
 void Client::recieve(Buffer& buffer) {

@@ -13,6 +13,7 @@ public:
 
 	void send(const std::string& buffer, ENetPeer* peer);
 	void send(const void* buffer, size_t size, ENetPeer* peer);
+	void send(const void* buffer, size_t size, ENetPeer* peer, _ENetPacketFlag flag);
 	void disconnect(ENetPeer* peer);
 
 	ENetHost* serverHost;

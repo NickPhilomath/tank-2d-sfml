@@ -10,7 +10,7 @@
 class Tank {
 public:
 
-	Tank(TankProps props, int team, int id);
+	Tank(int team, int id);
 	~Tank();
 
 	void update(float deltaTime, sf::Vector2i mousePos);
@@ -32,7 +32,7 @@ public:
 	int ID;
 
 private:
-	const TankProps props;
+	const TankAbramsInfo tankInfo = TankAbramsInfo();
 	int team;
 
 	AccelerationStage acceleration_stage;

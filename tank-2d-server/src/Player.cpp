@@ -10,21 +10,23 @@ Player::~Player() {
 }
 
 void Player::update(float deltaTime) {
-    
+    LOG(acceleration_stage);
+
     switch (acceleration_stage)
     {
     case A_NO_POWER:
         if (speed > 0) speed -= deltaTime * GROUND_FRICTION_ACCELERATION;
-        if (speed < 0) speed += deltaTime * GROUND_FRICTION_ACCELERATION;
+        else if (speed < 0) speed += deltaTime * GROUND_FRICTION_ACCELERATION;
         break;
     case A_FORWARD:
-        speed += deltaTime * props.forward_acceleration;
+        speed += deltaTime * props.acceleration;
         break;
     case A_BACKWARD:
-        speed -= deltaTime * props.backward_acceleration;
+        speed -= deltaTime * props.acceleration;
         break;
     case A_BREAKE:
-        speed += deltaTime * props.break_acceleration;
+        if (speed < 0) speed -= deltaTime * props.break_acceleration;
+        else if (speed > 0) speed += deltaTime * props.break_acceleration;
         break;
     default:
         break;
@@ -52,11 +54,12 @@ void Player::update(float deltaTime) {
 }
 
 void Player::inputUpdate(PlayerInput input) {
+    // if player suddenly changes movement tank uses break first
     if (input.move == 1) {
-        acceleration_stage = A_FORWARD;
+        acceleration_stage = speed < 0 ? A_BREAKE : A_FORWARD;
     }
     if (input.move == -1) {
-        acceleration_stage = A_BACKWARD;
+        acceleration_stage = speed > 0 ? A_BREAKE : A_BACKWARD;
     }
     if (input.move == 0) {
         acceleration_stage = A_NO_POWER;

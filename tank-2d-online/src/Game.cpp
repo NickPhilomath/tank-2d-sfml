@@ -4,8 +4,7 @@ Game::Game() :
     client{"127.0.0.1", 1234},
     ui{&gameFlag, &connectionFail}
 {
-    TankProps globalProps{};
-    playerTank = new Tank(globalProps, T_UNKNOWN, -1);
+    playerTank = new Tank(T_UNKNOWN, -1);
     playerTank->setPosition(sf::Vector2f(300, 300));
 
     mapBorder.setPointCount(4);
@@ -46,80 +45,62 @@ void Game::networkFunction() {
     snapshotUpdate();
 
     while (client.connected) {
-        client.send(playerTank->getInput(), sizeof(PlayerInput));
-        auto t_start = std::chrono::high_resolution_clock::now(); // *
-
+        client.send(playerTank->getInput(), sizeof(PlayerInput), ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
         client.recieve(snapshot);
         snapshotUpdate();
-
-        auto t_end = std::chrono::high_resolution_clock::now(); // *
-        double elapsed_time = std::chrono::duration<double, std::milli>(t_end - t_start).count(); // *
-        //std::cout << elapsed_time << std::endl;
     }
     client.disconnect();
 }
 
 void Game::snapshotUpdate() {
-    BufferInfo bufferInfo = snapshot.getBufferInfo();
+    int header;
+    snapshot.startReading();
 
-    int offset = 0;
-
-    while (offset < bufferInfo.size) {
-        int header;
-        memcpy(&header, offset + (char*)bufferInfo.bufferData, sizeof(int));
-        //LOG(header);
+    while (!snapshot.autoReadIsDone()) {
+        snapshot.autoReadHeader(&header);
         // we must handle all type of data
         if (header == H_PLAYER_ID) {
             PlayerIDData data;
-            memcpy(&data, offset + (char*)bufferInfo.bufferData, sizeof(PlayerIDData));
-            offset += sizeof(PlayerIDData);
+            snapshot.autoReadFromBuffer(&data, sizeof(PlayerIDData));
             playerTank->ID = data.id;
             //LOG("player ID: ", data.id);
         }
         else if (header == H_GAME_STAGE) {
             GameStageData data;
-            memcpy(&data, offset + (char*)bufferInfo.bufferData, sizeof(GameStageData));
-            offset += sizeof(GameStageData);
+            snapshot.autoReadFromBuffer(&data, sizeof(GameStageData));
         }
         else if (header == H_PLAYER_UPDATE) {
             PlayerUpdateData data;
-            memcpy(&data, offset + (char*)bufferInfo.bufferData, sizeof(PlayerUpdateData));
-            offset += sizeof(PlayerUpdateData);
+            snapshot.autoReadFromBuffer(&data, sizeof(PlayerUpdateData));
 
-            if (data.ID == playerTank->ID) {
-                //LOG("data: ", data.position.x, " ", data.rotation, " ", data.turrentRotation);
-                playerTank->setPosition(data.position);
-                playerTank->setRotation(data.rotation);
-                playerTank->setTurrentRotation(data.turrentRotation);
-            }
-            else {
-                bool found = false;
-                for (auto tank : tanks) {
-                    if (tank->ID == data.ID) {
-                        tank->setPosition(data.position);
-                        tank->setRotation(data.rotation);
-                        tank->setTurrentRotation(data.turrentRotation);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    TankProps globalProps{};
-                    Tank* tank = new Tank(globalProps, T_FIRST, data.ID);
-                    tank->setPosition(data.position);
-                    tanks.push_back(tank);
-                }
+            updatePlayer(data);
+        }
+    }
+}
+
+void Game::updatePlayer(PlayerUpdateData& data) {
+    if (data.ID == playerTank->ID) {
+        playerTank->setPosition(data.position * RATIO);
+        playerTank->setRotation(data.rotation);
+        playerTank->setTurrentRotation(data.turrentRotation);
+    }
+    else {
+        bool found = false;
+        for (auto tank : tanks) {
+            if (tank->ID == data.ID) {
+                tank->setPosition(data.position * RATIO);
+                tank->setRotation(data.rotation);
+                tank->setTurrentRotation(data.turrentRotation);
+                found = true;
+                break;
             }
         }
-
-
+        if (!found) {
+            Tank* tank = new Tank(T_FIRST, data.ID);
+            tank->setPosition(data.position * RATIO);
+            tanks.push_back(tank);
+        }
     }
-    /*
-    playerTank->setPosition(snapshot[0].position);
-    playerTank->setRotation(snapshot[0].rotation);
-    playerTank->setTurrentRotation(snapshot[0].turrentRotation);
-    */
-    //LOG(snapShot.rotation, ' ', snapShot.turrentRotation);
 }
 
 void Game::run() {
@@ -130,6 +111,8 @@ void Game::run() {
     //window.setMouseCursorVisible(false);
 
     while (window.isOpen()) {
+        Timer timer;
+
         // get events 
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -173,5 +156,10 @@ void Game::run() {
 
         ui.render(window);
         window.display();
+
+        // delay
+        std::this_thread::sleep_for(std::chrono::milliseconds(15));
+
+        //LOG(timer.getElapsedTime());
     }
 }

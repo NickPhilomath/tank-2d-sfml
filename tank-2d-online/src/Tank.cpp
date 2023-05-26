@@ -1,10 +1,6 @@
 #include "Tank.hpp"
 
-constexpr int body_width = 938, body_height = 456;
-constexpr int turrent_width = 1030, turrent_height = 450;
-
-Tank::Tank(TankProps props, int team, int id) :
-    props{ props },
+Tank::Tank(int team, int id) :
     ID{id},
     team{team}
 {
@@ -20,16 +16,16 @@ Tank::Tank(TankProps props, int team, int id) :
     }
 
     body.setTexture(&t_body);
-    body.setTextureRect(sf::IntRect(0, 0, body_width, body_height));
-    body.setSize(sf::Vector2f(body_width, body_height));
+    body.setTextureRect(sf::IntRect(0, 0, tankInfo.body_lenght, tankInfo.body_width));
+    body.setSize(sf::Vector2f(tankInfo.body_lenght, tankInfo.body_width));
     body.scale(sf::Vector2f(0.2, 0.2));
-    body.setOrigin(sf::Vector2f(body_width / 2, body_height / 2));
+    body.setOrigin(sf::Vector2f(tankInfo.body_lenght / 2, tankInfo.body_width / 2));
 
     turrent.setTexture(&t_turrent);
-    turrent.setTextureRect(sf::IntRect(0, 0, turrent_width, turrent_height));
-    turrent.setSize(sf::Vector2f(turrent_width, turrent_height));
+    turrent.setTextureRect(sf::IntRect(0, 0, tankInfo.turrent_lenght, tankInfo.turrent_width));
+    turrent.setSize(sf::Vector2f(tankInfo.turrent_lenght, tankInfo.turrent_width));
     turrent.scale(sf::Vector2f(0.2, 0.2));
-    turrent.setOrigin(sf::Vector2f(body_width / 2 - 180, body_height / 2));
+    turrent.setOrigin(sf::Vector2f(tankInfo.body_lenght / 2 - 180, tankInfo.body_width / 2));
 }
 
 Tank::~Tank() {

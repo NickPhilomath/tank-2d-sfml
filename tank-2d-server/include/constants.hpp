@@ -4,7 +4,20 @@
 
 constexpr auto DEG2RAD = 3.14159f / 180.0f;
 constexpr auto RAD2DEG = 180.0f / 3.14159f;
-constexpr auto GROUND_FRICTION_ACCELERATION = 50.f;
+constexpr auto GROUND_FRICTION_ACCELERATION = 0.5f;
+
+struct TANK_ABRAMS {
+	const float length = 7.4f;				// meters
+	const float width = 3.6f;				// meters
+	const float mass = 54000.f;				// kg
+	const float power = 1500.f;				// horse power
+	const float forward_maxSpeed = 11.f;    // m/s   (40 km/h)
+	const float backward_maxSpeed = -5.f;   // m/s   (18 km/h)
+	const float acceleration = 2.f;		    // m/s2    
+	const float break_acceleration = -10.f; // m/s2
+	const float rotationSpeed = 60.f;       // grad/s
+	const float turrentRotationSpeed = 90.f;// grad/s
+};
 
 enum AccelerationStage {
 	A_NO_POWER = 0,
@@ -59,16 +72,6 @@ struct PlayerUpdateData {
 	float speed;
 	float rotation;
 	float turrentRotation;
-};
-
-struct TankProps {
-	float forward_maxSpeed = 200.f;
-	float backward_maxSpeed = -70.f;
-	float forward_acceleration = 120.f;
-	float backward_acceleration = 70.f;
-	float break_acceleration = -400.f;
-	float rotationSpeed = 60.f;
-	float turrentRotationSpeed = 90.f;
 };
 
 // from client

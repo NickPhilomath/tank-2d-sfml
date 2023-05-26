@@ -10,6 +10,8 @@
 #include "Client.hpp"
 #include "UI.hpp"
 
+#include "Timer.hpp"
+
 class Game {
 public:
 	Game();
@@ -22,6 +24,7 @@ private:
 	void networkFunction();
 
 	void snapshotUpdate();
+	void updatePlayer(PlayerUpdateData& data);
 
 	Buffer snapshot;
 

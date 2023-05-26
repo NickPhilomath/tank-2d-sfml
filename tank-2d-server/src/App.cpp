@@ -27,7 +27,7 @@ void App::networkFunction() {
 				room.inputUpdatePlayer(server.event.peer->incomingPeerID, server.event.packet->data, server.event.packet->dataLength);
 				enet_packet_destroy(server.event.packet);
 				BufferInfo bufferInfo = room.getSnapshot(server.event.peer->incomingPeerID);
-				server.send(bufferInfo.bufferData, bufferInfo.size, server.event.peer);
+				server.send(bufferInfo.bufferData, bufferInfo.size, server.event.peer, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
 			}
 			else if (server.event.type == ENET_EVENT_TYPE_DISCONNECT) {
 				LOG(server.event.peer->incomingPeerID, " disconnected.");

@@ -16,6 +16,7 @@ public:
 	void connect();
 	void send(const std::string& buffer);
 	void send(const void* buffer, size_t size);
+	void send(const void* buffer, size_t size, _ENetPacketFlag flag);
 	void recieve(Buffer& buffer);
 	void disconnect();
 

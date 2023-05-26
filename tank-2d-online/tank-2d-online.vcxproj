@@ -161,6 +161,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\tank-2d-server\src\Buffer.cpp" />
+    <ClCompile Include="..\tank-2d-server\src\Timer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Client.cpp" />
