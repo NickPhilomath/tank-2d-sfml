@@ -27,3 +27,25 @@ void Buffer::cleanBuffer() {
 	bufferData = malloc(0);
 	bufferSize = 0;
 }
+
+void Buffer::readFromBuffer(void* destination, void* source, size_t size) {
+	memcpy(destination, source, size);
+}
+
+void Buffer::startReading() {
+	offset = 0;
+}
+
+void Buffer::autoReadHeader(int* header) {
+	memcpy(header, offset + (char*)bufferData, sizeof(int));
+}
+
+void Buffer::autoReadFromBuffer(void* destination, size_t size) {
+	if (offset + size > bufferSize) throw std::runtime_error("attemt to read outside of buffer");
+	memcpy(destination, offset + (char*)bufferData, size);
+	offset += size;
+}
+
+bool Buffer::autoReadIsDone() {
+	return offset == bufferSize;
+}

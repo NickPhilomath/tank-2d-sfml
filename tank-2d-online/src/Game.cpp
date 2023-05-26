@@ -5,18 +5,8 @@ Game::Game() :
     ui{&gameFlag, &connectionFail}
 {
     TankProps globalProps{};
-    playerTank = new Tank(G_PLAYER, globalProps, -1);
+    playerTank = new Tank(globalProps, T_UNKNOWN, -1);
     playerTank->setPosition(sf::Vector2f(300, 300));
-    {
-        Tank* tank = new Tank(G_ENAMY, globalProps, -1);
-        tank->setPosition(sf::Vector2f(50, 50));
-        tanks.push_back(tank);
-    }
-    {
-        Tank* tank = new Tank(Group::G_ALLIE, globalProps, -1);
-        tank->setPosition(sf::Vector2f(250, 150));
-        tanks.push_back(tank);
-    }
 
     mapBorder.setPointCount(4);
     mapBorder.setPoint(0, sf::Vector2f(0, 0));
@@ -115,7 +105,7 @@ void Game::snapshotUpdate() {
                 }
                 if (!found) {
                     TankProps globalProps{};
-                    Tank* tank = new Tank(G_ALLIE, globalProps, data.ID);
+                    Tank* tank = new Tank(globalProps, T_FIRST, data.ID);
                     tank->setPosition(data.position);
                     tanks.push_back(tank);
                 }
@@ -166,7 +156,12 @@ void Game::run() {
         ui.update();
 
         // render
-        window.clear();
+        if (gameFlag == IN_GAME) {
+            window.clear(sf::Color(12, 173, 0));
+        }
+        else {
+            window.clear(sf::Color(35, 89, 31));
+        }
 
         if (gameFlag == IN_GAME) {
             playerTank->render(window);

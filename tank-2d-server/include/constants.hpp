@@ -6,27 +6,39 @@ constexpr auto DEG2RAD = 3.14159f / 180.0f;
 constexpr auto RAD2DEG = 180.0f / 3.14159f;
 constexpr auto GROUND_FRICTION_ACCELERATION = 50.f;
 
-enum Group {
-	G_PLAYER = 0,
-	G_ALLIE,
-	G_ENAMY
+enum AccelerationStage {
+	A_NO_POWER = 0,
+	A_FORWARD,
+	A_BACKWARD,
+	A_BREAKE
+};
+
+enum Team {
+	T_FIRST = 0,
+	T_SECOND,
+	T_UNKNOWN
 };
 
 enum DataHeader {
+	// server
 	H_GAME_STAGE = 0,
 	H_PLAYER_UPDATE,
-	H_PLAYER_ID
-};
-
-struct BufferInfo {
-	void* bufferData;
-	size_t size;
+	H_PLAYER_ID,
+	// client
+	H_PLAYER_INPUT,
+	H_PLAYER_USERNAME
 };
 
 enum GameStage {
 	GS_STARTING = 0,
 	GS_RUNNING,
 	GS_ENDED
+};
+
+// from the server
+struct BufferInfo {
+	void* bufferData;
+	size_t size;
 };
 
 struct GameStageData {
@@ -41,7 +53,7 @@ struct PlayerIDData {
 
 struct PlayerUpdateData {
 	DataHeader header = H_PLAYER_UPDATE;
-	Group group;
+	Team team;
 	uint32_t ID;
 	sf::Vector2f position;
 	float speed;
@@ -59,17 +71,17 @@ struct TankProps {
 	float turrentRotationSpeed = 90.f;
 };
 
+// from client
 struct PlayerInput {
+	DataHeader header = H_PLAYER_INPUT;
 	int move;
 	int rotate;
-	int turrentRotate;
+	float turrentRotation;
 };
 
-enum AccelerationStage {
-	A_NO_POWER = 0,
-	A_FORWARD,
-	A_BACKWARD,
-	A_BREAKE
+struct PlayerUsername {
+	DataHeader header = H_PLAYER_USERNAME;
+	char username[32];
 };
 
 // utilities

@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tank-2d-client", "tank-2d-online\tank-2d-online.vcxproj", "{40C67F49-D04B-46B9-8D7E-3F7799B102F2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F093A6F-A83F-41C9-BFEC-D1229366D291} = {5F093A6F-A83F-41C9-BFEC-D1229366D291}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tank-2d-server", "tank-2d-server\tank-2d-server.vcxproj", "{5F093A6F-A83F-41C9-BFEC-D1229366D291}"
 EndProject

@@ -1,48 +1,35 @@
 #include "Tank.hpp"
 
-#ifdef _DEBUG
-#include <iostream>
-#endif // _DEBUG
+constexpr int body_width = 938, body_height = 456;
+constexpr int turrent_width = 1030, turrent_height = 450;
 
-
-Tank::Tank(Group group, TankProps props, int id) :
+Tank::Tank(TankProps props, int team, int id) :
     props{ props },
-    group{ group },
-    ID{id}
+    ID{id},
+    team{team}
 {
     acceleration_stage = A_NO_POWER;
     speed = 0.f;
-    // creating shape 
-    body.setPointCount(4);
-    body.setPoint(0, sf::Vector2f(30.f, 20.f));
-    body.setPoint(1, sf::Vector2f(30.f, -20.f));
-    body.setPoint(2, sf::Vector2f(-30.f, -20.f));
-    body.setPoint(3, sf::Vector2f(-30.f, 20.f));
-    body.setFillColor(sf::Color(0, 0, 0, 0));
-    body.setOutlineThickness(2);
-    turrent.setRadius(15.f);
-    turrent.setOutlineThickness(2);
-    turrent.setFillColor(sf::Color(0, 0, 0, 0));
-    turrent.setOrigin(15, 15);
-    gun.setSize(sf::Vector2f(50, 4));
-    gun.setOrigin(sf::Vector2f(-13, 2));
 
-    if (group == G_ALLIE) {
-        body.setOutlineColor(sf::Color::Green);
-        turrent.setOutlineColor(sf::Color::Green);
-        gun.setFillColor(sf::Color::Green);
-    }
-    else if (group == G_ENAMY) {
-        body.setOutlineColor(sf::Color::Red);
-        turrent.setOutlineColor(sf::Color::Red);
-        gun.setFillColor(sf::Color::Red);
-    }
-    else {
-        body.setOutlineColor(sf::Color::White);
-        turrent.setOutlineColor(sf::Color::White);
-        gun.setFillColor(sf::Color::White);
+    if (!t_body.loadFromFile("assets/body.png")) {
+        throw std::runtime_error("cannot load asset");
     }
 
+    if (!t_turrent.loadFromFile("assets/turrent.png")) {
+        throw std::runtime_error("cannot load asset");
+    }
+
+    body.setTexture(&t_body);
+    body.setTextureRect(sf::IntRect(0, 0, body_width, body_height));
+    body.setSize(sf::Vector2f(body_width, body_height));
+    body.scale(sf::Vector2f(0.2, 0.2));
+    body.setOrigin(sf::Vector2f(body_width / 2, body_height / 2));
+
+    turrent.setTexture(&t_turrent);
+    turrent.setTextureRect(sf::IntRect(0, 0, turrent_width, turrent_height));
+    turrent.setSize(sf::Vector2f(turrent_width, turrent_height));
+    turrent.scale(sf::Vector2f(0.2, 0.2));
+    turrent.setOrigin(sf::Vector2f(body_width / 2 - 180, body_height / 2));
 }
 
 Tank::~Tank() {
@@ -51,7 +38,7 @@ Tank::~Tank() {
 void Tank::update(float deltaTime, sf::Vector2i mousePos) {
     input.move = 0;
     input.rotate = 0;
-    input.turrentRotate = 0;
+    input.turrentRotation = 0.f;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         input.move = 1;
@@ -63,7 +50,8 @@ void Tank::update(float deltaTime, sf::Vector2i mousePos) {
         input.rotate = -1;
 
     float angle = atan2(VIEW_HEIGHT / 2.f - mousePos.y, VIEW_WIDTH / 2.f - mousePos.x) * RAD2DEG + 180.f;
-    input.turrentRotate = (angle > gun.getRotation()) == abs(gun.getRotation() - angle) > 180 ? -1 : 1;
+    input.turrentRotation = angle;
+    //input.turrentRotate = (angle > gun.getRotation()) == abs(gun.getRotation() - angle) > 180 ? -1 : 1;
     /*
     // if player suddenly changes movement tank uses break first
     if (input.move == 1) {
@@ -122,7 +110,6 @@ void Tank::update(float deltaTime, sf::Vector2i mousePos) {
 void Tank::render(sf::RenderWindow& target) {
     target.draw(body);
     target.draw(turrent);
-    target.draw(gun);
 }
 
 //void Tank::onEvent(const sf::Event& event) {
@@ -131,7 +118,6 @@ void Tank::render(sf::RenderWindow& target) {
 void Tank::setPosition(sf::Vector2f pos) {
     body.setPosition(pos);
     turrent.setPosition(pos);
-    gun.setPosition(pos);
 }
 
 void Tank::setRotation(float r) {
@@ -140,7 +126,7 @@ void Tank::setRotation(float r) {
 
 void Tank::setTurrentRotation(float r)
 {
-    gun.setRotation(r);
+    turrent.setRotation(r);
 }
 
 sf::Vector2f Tank::getPosition() const {
@@ -152,7 +138,7 @@ float Tank::getRotation() const {
 }
 
 float Tank::getTurrentRotation() const {
-    return gun.getRotation();
+    return turrent.getRotation();
 }
 
 PlayerInput* Tank::getInput() {

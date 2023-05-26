@@ -10,7 +10,7 @@
 class Tank {
 public:
 
-	Tank(Group group, TankProps props, int id);
+	Tank(TankProps props, int team, int id);
 	~Tank();
 
 	void update(float deltaTime, sf::Vector2i mousePos);
@@ -33,12 +33,12 @@ public:
 
 private:
 	const TankProps props;
-	const Group group;
-	
+	int team;
+
 	AccelerationStage acceleration_stage;
 
-	sf::ConvexShape body;
-	sf::CircleShape turrent;
-	sf::RectangleShape gun;
-
+	sf::Texture t_body;
+	sf::Texture t_turrent;
+	sf::RectangleShape body;
+	sf::RectangleShape turrent;
 };

@@ -45,10 +45,10 @@ void Player::update(float deltaTime) {
         turrentRotation += deltaRotate; // if body rotates turrent rotates as well
     }
 
-    if (input.turrentRotate != 0) {
-        float deltaRotate = input.turrentRotate * props.turrentRotationSpeed * deltaTime;
-        turrentRotation += deltaRotate;
-    }
+    // turrent
+    turrentRotation = input.turrentRotation;
+        //float deltaRotate = input.turrentRotate * props.turrentRotationSpeed * deltaTime;
+        //turrentRotation += deltaRotate;
 }
 
 void Player::inputUpdate(PlayerInput input) {

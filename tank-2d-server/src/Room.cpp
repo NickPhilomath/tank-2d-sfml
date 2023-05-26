@@ -31,21 +31,27 @@ void Room::addPlayer(Player* player) {
 	else team2.push_back(player);
 }
 
-void Room::inputUpdatePlayer(uint32_t id, const void* inputData) {
-	PlayerInput data{};
-	memcpy(&data, inputData, sizeof(PlayerInput));
+void Room::inputUpdatePlayer(uint32_t id, void* inputData, size_t size) {
+	Buffer inputBuffer;
+	inputBuffer.writeToBuffer(inputData, size);
 
-	for (auto player : team1) {
-		if (player->ID == id) {
-			player->inputUpdate(data);
-			return;
+	int header;
+	inputBuffer.startReading();
+
+	while (!inputBuffer.autoReadIsDone()) {
+		inputBuffer.autoReadHeader(&header);
+		// we must handle all type of data
+		if (header == H_PLAYER_USERNAME) {
+			PlayerUsername data;
+			inputBuffer.autoReadFromBuffer(&data, sizeof(PlayerUsername));
+
+			updatePlayerUsername(id, data);
 		}
-	}
+		else if (header == H_PLAYER_INPUT) {
+			PlayerInput data;
+			inputBuffer.autoReadFromBuffer(&data, sizeof(PlayerInput));
 
-	for (auto player : team2) {
-		if (player->ID == id) {
-			player->inputUpdate(data);
-			return;
+			updatePlayerInput(id, data);
 		}
 	}
 }
@@ -62,20 +68,18 @@ void Room::takeSnapshot() {
 	// clean the buffer
 	snapshotBuffer.cleanBuffer();
 
-	
-
 	{
 		GameStageData data;
 		data.stage = GS_RUNNING;
-
 		snapshotBuffer.writeToBuffer(&data, sizeof(GameStageData));
 	}
+
 	if (gameStage == GS_RUNNING) {
 		//LOG(team1.size(), " ", team2.size());
 
 		for (auto player : team1) {
 			PlayerUpdateData data;
-			//data.group = G_PLAYER;
+			data.team = T_FIRST;
 			data.ID = player->ID;
 			data.position = player->position;
 			data.rotation = player->rotation;
@@ -85,12 +89,42 @@ void Room::takeSnapshot() {
 
 		for (auto player : team2) {
 			PlayerUpdateData data;
-			//data.group = G_PLAYER;
+			data.team = T_SECOND;
 			data.ID = player->ID;
 			data.position = player->position;
 			data.rotation = player->rotation;
 			data.turrentRotation = player->turrentRotation;
 			snapshotBuffer.writeToBuffer(&data, sizeof(PlayerUpdateData));
+		}
+	}
+}
+
+void Room::updatePlayerUsername(uint32_t id, PlayerUsername& username) {
+	for (auto player : team1) {
+		if (player->ID == id) {
+			player->username = username.username;
+			return;
+		}
+	}
+	for (auto player : team2) {
+		if (player->ID == id) {
+			player->username = username.username;
+			return;
+		}
+	}
+}
+
+void Room::updatePlayerInput(uint32_t id, PlayerInput& input) {
+	for (auto player : team1) {
+		if (player->ID == id) {
+			player->inputUpdate(input);
+			return;
+		}
+	}
+	for (auto player : team2) {
+		if (player->ID == id) {
+			player->inputUpdate(input);
+			return;
 		}
 	}
 }

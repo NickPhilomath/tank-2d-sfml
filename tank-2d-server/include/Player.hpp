@@ -16,6 +16,7 @@ public:
 	const ENetPeer* peer;
 	const uint32_t ID;
 	const TankProps props{};
+	std::string username;
 
 	float speed;
 	float rotation;

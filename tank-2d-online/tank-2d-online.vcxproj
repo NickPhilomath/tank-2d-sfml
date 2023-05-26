@@ -160,8 +160,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\tank-2d-server\src\Buffer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\Buffer.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Client.cpp" />
     <ClCompile Include="src\Game.cpp" />
@@ -177,7 +177,9 @@
     <ClInclude Include="ptch\clientConstants.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\.gitignore" />
+    <ProjectReference Include="..\tank-2d-server\tank-2d-server.vcxproj">
+      <Project>{5f093a6f-a83f-41c9-bfec-d1229366d291}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
