@@ -7,14 +7,10 @@
 
 class Player {
 public:
-	Player(ENetPeer* peer, uint32_t id);
+	Player();
 	~Player();
 
 	void update(float deltaTime);
-	void inputUpdate(PlayerInput input);
-
-	const ENetPeer* peer;
-	const uint32_t ID;
 	const TANK_ABRAMS props{};
 	std::string username;
 
@@ -28,4 +24,14 @@ public:
 
 private:
 
+};
+
+class ServerPlayer : public Player {
+public:
+	ServerPlayer(ENetPeer* peer, uint32_t id);
+	void inputUpdate(PlayerInput input);
+
+	const uint32_t ID;
+	const ENetPeer* peer;
+private:
 };

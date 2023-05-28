@@ -9,6 +9,7 @@
 #include "Camera.hpp"
 #include "Client.hpp"
 #include "UI.hpp"
+#include "Map.hpp"
 
 #include "Timer.hpp"
 
@@ -28,13 +29,13 @@ private:
 
 	Buffer snapshot;
 
-	sf::ConvexShape mapBorder;
+	Map gameMap;
 	Tank* playerTank;
 	std::vector<Tank*> tanks;
 
 	UI ui;
 	Client client;
-	sf::Clock clock;
+	Timer clock;
 	sf::RenderWindow window;
 	Camera camera{ VIEW_WIDTH, VIEW_HEIGHT };
 	GameFlag gameFlag;

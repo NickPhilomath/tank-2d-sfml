@@ -7,11 +7,11 @@ App::~App() {
 }
 
 void App::networkFunction() {
-	LOG("networkFunction start.");
+	LOG("server started.");
 	while (true) {
-		while (enet_host_service(server.serverHost, &server.event, 30) > 0) {
+		while (enet_host_service(server.serverHost, &server.event, NET_UPDATE) > 0) {
 			if (server.event.type == ENET_EVENT_TYPE_CONNECT) {
-				Player* player = new Player(server.event.peer, server.event.peer->incomingPeerID);
+				ServerPlayer* player = new ServerPlayer(server.event.peer, server.event.peer->incomingPeerID);
 				room.addPlayer(player);
 				LOG("A new client connected from ", server.event.peer->address.host, 
 					" port: ", server.event.peer->address.port, 
@@ -44,13 +44,10 @@ void App::run() {
 	netThred.detach();
 
 	while (running) {
-		static auto t_start = std::chrono::high_resolution_clock::now();
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		auto t_end = std::chrono::high_resolution_clock::now();
-		float elapsed_time = std::chrono::duration<float, std::milli>(t_end - t_start).count();
-		t_start = t_end;
-
-		room.update(elapsed_time / 1000.f);
+		//LOG(clock.getElapsedTime());
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+		room.update(clock.getElapsedTime() / 1000.f);
+		clock.resetTime();
 	}
 }
 

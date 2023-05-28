@@ -24,7 +24,7 @@ void Room::update(float deltaTime) {
 	takeSnapshot();
 }
 
-void Room::addPlayer(Player* player) {
+void Room::addPlayer(ServerPlayer* player) {
 	// here we match players 
 	// we simply add one by one for now
 	if (team1.size() < team2.size()) team1.push_back(player);
@@ -81,9 +81,12 @@ void Room::takeSnapshot() {
 			PlayerUpdateData data;
 			data.team = T_FIRST;
 			data.ID = player->ID;
+			data.speed = player->speed;
 			data.position = player->position;
 			data.rotation = player->rotation;
 			data.turrentRotation = player->turrentRotation;
+			data.accelerationStage = player->acceleration_stage;
+			data.playerInput = player->input;
 			snapshotBuffer.writeToBuffer(&data, sizeof(PlayerUpdateData));
 		}
 
@@ -91,9 +94,11 @@ void Room::takeSnapshot() {
 			PlayerUpdateData data;
 			data.team = T_SECOND;
 			data.ID = player->ID;
+			data.speed = player->speed;
 			data.position = player->position;
 			data.rotation = player->rotation;
 			data.turrentRotation = player->turrentRotation;
+			data.accelerationStage = player->acceleration_stage;
 			snapshotBuffer.writeToBuffer(&data, sizeof(PlayerUpdateData));
 		}
 	}

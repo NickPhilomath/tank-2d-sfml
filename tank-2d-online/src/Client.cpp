@@ -35,12 +35,12 @@ void Client::connect() {
 
 	if (enet_host_service(clientHost, &event, 3000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
 	{
-		std::cout << "Connection succeeded." << std::endl;
+		LOG("Connection succeeded.");
 		connected = true;
 	}
 	else {
 		enet_peer_reset(peer);
-		std::cout << "Connection failed." << std::endl;
+		LOG("Connection failed.");
 	}
 }
 
@@ -59,9 +59,11 @@ void Client::send(const void* buffer, size_t size, _ENetPacketFlag flag) {
 	enet_peer_send(peer, 0, packet);
 }
 
-void Client::recieve(Buffer& buffer) {
-	while (enet_host_service(clientHost, &event, 30) > 0) {
+bool Client::recieve(Buffer& buffer) {
+	bool recieved = false;
+	while (enet_host_service(clientHost, &event, NET_UPDATE) > 0) {
 		if (event.type == ENET_EVENT_TYPE_RECEIVE) {
+			recieved = true;
 			buffer.cleanBuffer();
 			buffer.writeToBuffer(event.packet->data, event.packet->dataLength - 1);
 			enet_packet_destroy(event.packet);
@@ -71,6 +73,7 @@ void Client::recieve(Buffer& buffer) {
 			event.peer->data = NULL;
 		}
 	}
+	return recieved;
 }
 
 void Client::disconnect() {
@@ -84,7 +87,7 @@ void Client::disconnect() {
 			enet_packet_destroy(event.packet);
 			break;
 		case ENET_EVENT_TYPE_DISCONNECT:
-			std::cout << "Disconnection succeeded. \n";
+			LOG("Disconnection succeeded.");
 			disconnected = true;
 		}
 	}

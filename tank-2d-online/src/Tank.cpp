@@ -1,11 +1,14 @@
 #include "Tank.hpp"
 
-Tank::Tank(int team, int id) :
+Tank::Tank(Team team, int id) :
     ID{id},
     team{team}
 {
     acceleration_stage = A_NO_POWER;
     speed = 0.f;
+    position = sf::Vector2f(0, 0);
+    rotation = 0.f;
+    turrentRotation = 0.f;
 
     if (!t_body.loadFromFile("assets/body.png")) {
         throw std::runtime_error("cannot load asset");
@@ -16,84 +19,73 @@ Tank::Tank(int team, int id) :
     }
 
     body.setTexture(&t_body);
-    body.setTextureRect(sf::IntRect(0, 0, tankInfo.body_lenght, tankInfo.body_width));
-    body.setSize(sf::Vector2f(tankInfo.body_lenght, tankInfo.body_width));
-    body.scale(sf::Vector2f(0.2, 0.2));
-    body.setOrigin(sf::Vector2f(tankInfo.body_lenght / 2, tankInfo.body_width / 2));
+    body.setTextureRect(sf::IntRect(0, 0, tankInfo.body_length, tankInfo.body_width));
+    body.setSize(sf::Vector2f(tankInfo.body_length, tankInfo.body_width));
+    body.setOrigin(sf::Vector2f(tankInfo.body_length / 2, tankInfo.body_width / 2));
 
     turrent.setTexture(&t_turrent);
-    turrent.setTextureRect(sf::IntRect(0, 0, tankInfo.turrent_lenght, tankInfo.turrent_width));
-    turrent.setSize(sf::Vector2f(tankInfo.turrent_lenght, tankInfo.turrent_width));
-    turrent.scale(sf::Vector2f(0.2, 0.2));
-    turrent.setOrigin(sf::Vector2f(tankInfo.body_lenght / 2 - 180, tankInfo.body_width / 2));
+    turrent.setTextureRect(sf::IntRect(0, 0, tankInfo.turrent_length, tankInfo.turrent_width));
+    turrent.setSize(sf::Vector2f(tankInfo.turrent_length, tankInfo.turrent_width));
+    turrent.setOrigin(sf::Vector2f(tankInfo.body_length / 2 - 180, tankInfo.body_width / 2));
 }
 
 Tank::~Tank() {
 }
 
 void Tank::update(float deltaTime, sf::Vector2i mousePos) {
-    input.move = 0;
-    input.rotate = 0;
-    input.turrentRotation = 0.f;
-
+    // for the f*cking server
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        input.move = 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        input.move = -1;
+        inputServer.move = 1;
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        inputServer.move = -1;
+    else
+        inputServer.move = 0;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        input.rotate = 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        input.rotate = -1;
+        inputServer.rotate = 1;
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        inputServer.rotate = -1;
+    else
+        inputServer.rotate = 0;
 
     float angle = atan2(VIEW_HEIGHT / 2.f - mousePos.y, VIEW_WIDTH / 2.f - mousePos.x) * RAD2DEG + 180.f;
-    input.turrentRotation = angle;
-    //input.turrentRotate = (angle > gun.getRotation()) == abs(gun.getRotation() - angle) > 180 ? -1 : 1;
-    /*
-    // if player suddenly changes movement tank uses break first
-    if (input.move == 1) {
-        acceleration_stage = speed < 0 ? A_BREAKE : A_FORWARD;
-    }
-    if (input.move == -1) {
-        acceleration_stage = speed > 0 ? A_BREAKE : A_BACKWARD;
-    }
-    if (input.move == 0) {
-        acceleration_stage = A_NO_POWER;
-    }
-
+    inputServer.tRotate = angle;
+    //// ****
     switch (acceleration_stage)
     {
     case A_NO_POWER:
         if (speed > 0) speed -= deltaTime * GROUND_FRICTION_ACCELERATION;
-        if (speed < 0) speed += deltaTime * GROUND_FRICTION_ACCELERATION;
+        else if (speed < 0) speed += deltaTime * GROUND_FRICTION_ACCELERATION;
         break;
     case A_FORWARD:
-        speed += deltaTime * props.forward_acceleration;
+        speed += deltaTime * tankProps.acceleration;
         break;
     case A_BACKWARD:
-        speed -= deltaTime * props.backward_acceleration;
+        speed -= deltaTime * tankProps.acceleration;
         break;
     case A_BREAKE:
-        speed += deltaTime * props.break_acceleration * input.move;
+        if (speed < 0) speed -= deltaTime * tankProps.break_acceleration;
+        else if (speed > 0) speed += deltaTime * tankProps.break_acceleration;
         break;
     default:
         break;
     }
 
-    if (speed > props.forward_maxSpeed) speed = props.forward_maxSpeed;
-    if (speed < props.backward_maxSpeed) speed = props.backward_maxSpeed;
+    if (speed > tankProps.forward_maxSpeed) speed = tankProps.forward_maxSpeed;
+    else if (speed < tankProps.backward_maxSpeed) speed = tankProps.backward_maxSpeed;
 
     sf::Vector2f velocity;
-    velocity.x = speed * cos(body.getRotation() * DEG2RAD);
-    velocity.y = speed * sin(body.getRotation() * DEG2RAD);
-    setPosition(sf::Vector2f(getPosition().x + velocity.x * deltaTime, getPosition().y + velocity.y * deltaTime));
+    velocity.x = speed * cos(rotation * DEG2RAD);
+    velocity.y = speed * sin(rotation * DEG2RAD);
+    position = sf::Vector2f(position.x + velocity.x * deltaTime, position.y + velocity.y * deltaTime);
 
-    int rotateSign = speed >= 0 ? 1 : -1; // rotate reverse if tank is moving backward
-    float deltaRotate = input.rotate * rotateSign * props.rotationSpeed * deltaTime;
     if (input.rotate != 0) {
-        setRotation(body.getRotation() + deltaRotate);
-        setTurrentRotation(gun.getRotation() + deltaRotate);
+        float deltaRotate = input.rotate * tankProps.rotationSpeed * deltaTime;
+        if (input.move == -1) deltaRotate *= -1; // rotate reverse if player pressed back
+        rotation += deltaRotate;
+        turrentRotation += deltaRotate; // if body rotates turrent rotates as well
     }
-
+    //input.turrentRotate = (angle > gun.getRotation()) == abs(gun.getRotation() - angle) > 180 ? -1 : 1;
+    /*
     // mouse movement 
     float gunAngle = gun.getRotation();
     float angle = atan2(VIEW_HEIGHT / 2.f - mousePos.y, VIEW_WIDTH / 2.f - mousePos.x) * RAD2DEG + 180.f;
@@ -101,6 +93,11 @@ void Tank::update(float deltaTime, sf::Vector2i mousePos) {
     //std::cout << gun.getRotation() << std::endl;
     gun.setRotation(gunAngle + gunRotateSign * props.turrentRotationSpeed * deltaTime);
     */
+
+    body.setPosition(position * RATIO);
+    body.setRotation(rotation);
+    turrent.setPosition(position * RATIO);
+    turrent.setRotation(turrentRotation);
 }
 
 void Tank::render(sf::RenderWindow& target) {
@@ -111,32 +108,6 @@ void Tank::render(sf::RenderWindow& target) {
 //void Tank::onEvent(const sf::Event& event) {
 //}
 
-void Tank::setPosition(sf::Vector2f pos) {
-    body.setPosition(pos);
-    turrent.setPosition(pos);
-}
-
-void Tank::setRotation(float r) {
-    body.setRotation(r);
-}
-
-void Tank::setTurrentRotation(float r)
-{
-    turrent.setRotation(r);
-}
-
-sf::Vector2f Tank::getPosition() const {
-    return body.getPosition();
-}
-
-float Tank::getRotation() const {
-    return body.getRotation();
-}
-
-float Tank::getTurrentRotation() const {
-    return turrent.getRotation();
-}
-
 PlayerInput* Tank::getInput() {
-    return &input;
+    return &inputServer;
 }

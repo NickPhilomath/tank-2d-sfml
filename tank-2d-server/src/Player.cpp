@@ -1,16 +1,18 @@
 #include "Player.hpp"
 
-Player::Player(ENetPeer* peer, uint32_t id) :
+ServerPlayer::ServerPlayer(ENetPeer* peer, uint32_t id) :
 	peer{ peer }, ID{id} {
     acceleration_stage = A_NO_POWER;
     speed = 0.f;
+}
+
+Player::Player() {
 }
 
 Player::~Player() {
 }
 
 void Player::update(float deltaTime) {
-    LOG(acceleration_stage);
 
     switch (acceleration_stage)
     {
@@ -33,7 +35,7 @@ void Player::update(float deltaTime) {
     }
 
     if (speed > props.forward_maxSpeed) speed = props.forward_maxSpeed;
-    if (speed < props.backward_maxSpeed) speed = props.backward_maxSpeed;
+    else if (speed < props.backward_maxSpeed) speed = props.backward_maxSpeed;
 
     sf::Vector2f velocity;
     velocity.x = speed * cos(rotation * DEG2RAD);
@@ -48,20 +50,20 @@ void Player::update(float deltaTime) {
     }
 
     // turrent
-    turrentRotation = input.turrentRotation;
+    turrentRotation = input.tRotate;
         //float deltaRotate = input.turrentRotate * props.turrentRotationSpeed * deltaTime;
         //turrentRotation += deltaRotate;
 }
 
-void Player::inputUpdate(PlayerInput input) {
-    // if player suddenly changes movement tank uses break first
+void ServerPlayer::inputUpdate(PlayerInput input) {
+    // if player suddenly changes movement, tank uses break first
     if (input.move == 1) {
         acceleration_stage = speed < 0 ? A_BREAKE : A_FORWARD;
     }
-    if (input.move == -1) {
+    else if (input.move == -1) {
         acceleration_stage = speed > 0 ? A_BREAKE : A_BACKWARD;
     }
-    if (input.move == 0) {
+    else if (input.move == 0) {
         acceleration_stage = A_NO_POWER;
     }
     this->input = input;

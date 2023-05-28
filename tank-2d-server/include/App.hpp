@@ -6,6 +6,7 @@
 #include "Room.hpp"
 #include "Player.hpp"
 #include "Server.hpp"
+#include "Timer.hpp"
 
 #include "constants.hpp"
 
@@ -22,6 +23,7 @@ private:
 	void networkFunction();
 
 	bool running = false;
+	Timer clock;
 	Room room;
 	Server server;
 };

@@ -6,6 +6,11 @@ constexpr auto DEG2RAD = 3.14159f / 180.0f;
 constexpr auto RAD2DEG = 180.0f / 3.14159f;
 constexpr auto GROUND_FRICTION_ACCELERATION = 0.5f;
 
+constexpr auto NET_UPDATE = 50; // milliseconds   (usually 50)
+
+constexpr auto MAP_LENGTH = 500; // meters
+constexpr auto MAP_WIDTH = 500;  // meters
+
 struct TANK_ABRAMS {
 	const float length = 7.4f;				// meters
 	const float width = 3.6f;				// meters
@@ -48,6 +53,19 @@ enum GameStage {
 	GS_ENDED
 };
 
+// from client
+struct PlayerInput {
+	DataHeader header = H_PLAYER_INPUT;
+	int move = 0;
+	int rotate = 0;
+	float tRotate = 0.f;
+};
+
+struct PlayerUsername {
+	DataHeader header = H_PLAYER_USERNAME;
+	char username[32];
+};
+
 // from the server
 struct BufferInfo {
 	void* bufferData;
@@ -72,19 +90,9 @@ struct PlayerUpdateData {
 	float speed;
 	float rotation;
 	float turrentRotation;
-};
+	AccelerationStage accelerationStage;
 
-// from client
-struct PlayerInput {
-	DataHeader header = H_PLAYER_INPUT;
-	int move;
-	int rotate;
-	float turrentRotation;
-};
-
-struct PlayerUsername {
-	DataHeader header = H_PLAYER_USERNAME;
-	char username[32];
+	PlayerInput playerInput;
 };
 
 // utilities
