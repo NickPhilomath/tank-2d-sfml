@@ -36,7 +36,7 @@ void Game::networkFunction() {
     snapshotUpdate();
 
     while (client.connected) {
-        client.send(playerTank->getInput(), sizeof(PlayerInput), ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
+        client.send(&playerTank->inputServer, sizeof(PlayerInput), ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
         if (client.recieve(snapshot)) {
             snapshotUpdate();
         }
@@ -128,13 +128,14 @@ void Game::run() {
         // update
         float DT = clock.getElapsedTime() / 1000.f; clock.resetTime();
 
-        if (gameFlag == IN_GAME && windowOnFocus) {
-            gameMap.update(camera);
-
+        if (gameFlag == IN_GAME) {
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-            playerTank->update(DT, mousePos);
-        
             camera.update(DT);
+            gameMap.update(camera);
+            playerTank->update(DT, mousePos, windowOnFocus);
+            for (auto tank : tanks) {
+                tank->update(DT, mousePos, windowOnFocus);
+            }
             window.setView(camera.cameraView);
         }
         ui.update();

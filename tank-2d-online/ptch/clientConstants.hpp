@@ -25,3 +25,9 @@ enum GameFlag {
 	CONNECTION_FAIL,
 	IN_GAME,
 };
+
+#ifdef _DEBUG
+constexpr auto ASSETS_DIR = "../../";
+#else
+constexpr auto ASSETS_DIR = "";
+#endif // _DEBUG

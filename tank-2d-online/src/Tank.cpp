@@ -32,23 +32,25 @@ Tank::Tank(Team team, int id) :
 Tank::~Tank() {
 }
 
-void Tank::update(float deltaTime, sf::Vector2i mousePos) {
+void Tank::update(float deltaTime, sf::Vector2i mousePos, bool windowOnFocus) {
     // for the f*cking server
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        inputServer.move = 1;
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        inputServer.move = -1;
-    else
-        inputServer.move = 0;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        inputServer.rotate = 1;
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        inputServer.rotate = -1;
-    else
-        inputServer.rotate = 0;
+    if (windowOnFocus) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+            inputServer.move = 1;
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+            inputServer.move = -1;
+        else
+            inputServer.move = 0;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+            inputServer.rotate = 1;
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+            inputServer.rotate = -1;
+        else
+            inputServer.rotate = 0;
 
-    float angle = atan2(VIEW_HEIGHT / 2.f - mousePos.y, VIEW_WIDTH / 2.f - mousePos.x) * RAD2DEG + 180.f;
-    inputServer.tRotate = angle;
+        float angle = atan2(VIEW_HEIGHT / 2.f - mousePos.y, VIEW_WIDTH / 2.f - mousePos.x) * RAD2DEG + 180.f;
+        inputServer.tRotate = angle;
+    }
     //// ****
     switch (acceleration_stage)
     {
@@ -107,7 +109,3 @@ void Tank::render(sf::RenderWindow& target) {
 
 //void Tank::onEvent(const sf::Event& event) {
 //}
-
-PlayerInput* Tank::getInput() {
-    return &inputServer;
-}

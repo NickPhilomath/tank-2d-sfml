@@ -13,7 +13,7 @@ public:
 	Tank(Team team, int id);
 	~Tank();
 
-	void update(float deltaTime, sf::Vector2i mousePos);
+	void update(float deltaTime, sf::Vector2i mousePos, bool windowOnFocus);
 	void render(sf::RenderWindow& target);
 	//void onEvent(const sf::Event& event);
 
@@ -25,8 +25,7 @@ public:
 
 	PlayerInput input{};
 	PlayerInput inputServer{};
-	PlayerInput* getInput();
-
+	
 	int ID;
 
 private:
